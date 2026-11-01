@@ -71,32 +71,44 @@ def message(changes):
     return "机票降价：" + title, body
 
 
-def send(title, body):
-    token = os.environ.get("PUSHPLUS_TOKEN", "").strip()
-    key = os.environ.get("SERVERCHAN_KEY", "").strip()
-    if token:
-        req = urllib.request.Request(
-            "https://www.pushplus.plus/send",
-            data=json.dumps({"token": token, "title": title, "content": body, "template": "markdown"}).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-        )
-    elif key:
-        req = urllib.request.Request(
-            f"https://sctapi.ftqq.com/{key}.send",
-            data=urllib.parse.urlencode({"title": title[:32], "desp": body}).encode("utf-8"),
-        )
-    else:
-        print("没有设置 PUSHPLUS_TOKEN 或 SERVERCHAN_KEY，跳过推送。")
-        return
+def _post(req):
     with urllib.request.urlopen(req, timeout=20) as resp:
         text = resp.read().decode("utf-8", "replace")
-    print("推送结果：", text[:300])
     try:
         code = json.loads(text).get("code")
     except ValueError:
         code = None
-    if code not in (200, 0):
-        sys.exit("推送失败，请检查 token 是否正确。")
+    return code in (200, 0), text[:300]
+
+
+def send(title, body):
+    """有 Server酱 就先用 Server酱（免费），没有或失败再试 PushPlus。"""
+    key = os.environ.get("SERVERCHAN_KEY", "").strip()
+    token = os.environ.get("PUSHPLUS_TOKEN", "").strip()
+    tried = []
+    if key:
+        ok, text = _post(urllib.request.Request(
+            f"https://sctapi.ftqq.com/{key}.send",
+            data=urllib.parse.urlencode({"title": title[:32], "desp": body}).encode("utf-8"),
+        ))
+        print("Server酱 推送结果：", text)
+        if ok:
+            return
+        tried.append("Server酱")
+    if token:
+        ok, text = _post(urllib.request.Request(
+            "https://www.pushplus.plus/send",
+            data=json.dumps({"token": token, "title": title, "content": body, "template": "markdown"}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        ))
+        print("PushPlus 推送结果：", text)
+        if ok:
+            return
+        tried.append("PushPlus")
+    if not tried:
+        print("没有设置 SERVERCHAN_KEY 或 PUSHPLUS_TOKEN，跳过推送。")
+        return
+    sys.exit("推送失败（" + "、".join(tried) + "），请检查 key 是否正确。")
 
 
 def main():
