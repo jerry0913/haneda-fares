@@ -1,4 +1,4 @@
-"""prices.json 更新后检查是否降价，降价就推送到微信（PushPlus 或 Server酱）。"""
+"""查价后检查 2/11（或 2/10）去、2/15 回 的往返价有没有降，降了就推送到微信（PushPlus 或 Server酱）。"""
 import json
 import os
 import sys
@@ -7,70 +7,68 @@ import urllib.request
 
 SITE = "https://jerry0913.github.io/haneda-fares/"
 CTRIP = "https://flights.ctrip.com/online/list/round-bjs-hnd?depdate=2027-02-11_2027-02-15&cabin=y_s&adult=1"
-NAMES = {"exact": "你的日期 2/11–2/15", "pek_feb": "首都–羽田 2月最低", "pkx_feb": "大兴–羽田 2月最低"}
-ORDER = ["exact", "pek_feb", "pkx_feb"]
+LABELS = {"d11": "2/11 去 · 2/15 回", "d10": "2/10 去 · 2/15 回"}
+LEVELS = {"low": "偏低", "typical": "正常", "high": "偏高"}
 
 
 def yuan(n):
     return f"¥{int(n):,}"
 
 
-def load_rows():
+def load():
     with open("prices.json", encoding="utf-8") as f:
         data = json.load(f)
-    rows = data["rows"] if isinstance(data, dict) else data
+    rows = [r for r in data.get("rows", []) if r.get("trip") in LABELS and r.get("price")]
+    for r in rows:
+        r["price"] = int(r["price"])
+    rows.sort(key=lambda r: r.get("checked_at") or r.get("checked") or "")
+    return rows
+
+
+def detail(r):
+    bits = [r.get("airline") or "", r.get("airport") or ""]
+    if r.get("stops") == 0:
+        bits.append("直飞")
+    elif isinstance(r.get("stops"), int):
+        bits.append(f"转机{r['stops']}次")
+    s = " ".join(b for b in bits if b)
+    lvl = LEVELS.get(r.get("price_level") or "")
+    if lvl:
+        s += f"；Google 判断价格{lvl}"
+        if r.get("typical_low") and r.get("typical_high"):
+            s += f"（这段日子通常 {yuan(r['typical_low'])}–{yuan(r['typical_high'])}）"
+    return s
+
+
+def changes_for(rows, ids):
     out = []
     for r in rows:
-        try:
-            out.append({**r, "price": int(float(r["price"])), "checked": str(r["checked"])[:10]})
-        except (KeyError, TypeError, ValueError):
+        if r["id"] not in ids:
             continue
+        before = [x for x in rows if x["trip"] == r["trip"] and (x.get("checked_at") or "") < (r.get("checked_at") or "")]
+        if not before:
+            out.append(("first", r, None, None))
+            continue
+        last, low = before[-1], min(before, key=lambda x: x["price"])
+        if r["price"] < last["price"]:
+            out.append(("drop", r, last, r["price"] < low["price"]))
+    out.sort(key=lambda c: 0 if c[1]["trip"] == "d11" else 1)
     return out
 
 
-def fare(r):
-    who = f"{r.get('airline') or ''}{r.get('direct') or ''}"
-    when = (r.get("fare_dates") or "").replace(" · ", "，")
-    return "，".join(x for x in (who, when) if x)
-
-
-def find_changes(rows):
-    if not rows:
-        return []
-    latest = max(r["checked"] for r in rows)
-    changes = []
-    for s in ORDER:
-        series = sorted((r for r in rows if r.get("series") == s), key=lambda r: r["checked"])
-        today = [r for r in series if r["checked"] == latest]
-        if not today:
-            continue
-        cur = today[-1]
-        before = [r for r in series if r["checked"] < latest]
-        if not before:
-            if s == "exact":
-                changes.append(("first", s, cur, None, None))
-            continue
-        last = before[-1]
-        low = min(before, key=lambda r: r["price"])
-        if cur["price"] < last["price"]:
-            changes.append(("drop", s, cur, last, cur["price"] < low["price"]))
-    return changes
-
-
-def build_message(changes):
+def message(changes):
     lines, title = [], None
-    for kind, s, cur, last, new_low in changes:
+    for kind, r, last, new_low in changes:
+        name = LABELS[r["trip"]]
         if kind == "first":
-            t = f"查到你的日期报价 {yuan(cur['price'])}"
-            lines.append(f"**{NAMES[s]}**：第一次查到报价 **{yuan(cur['price'])}**（{fare(cur)}）")
+            t = f"{name} 往返 {yuan(r['price'])}"
+            lines.append(f"**{name}**：第一次记录到往返 **{yuan(r['price'])}**\n{detail(r)}")
         else:
-            drop = last["price"] - cur["price"]
             tag = "，历史新低" if new_low else ""
-            t = f"{NAMES[s]}降到 {yuan(cur['price'])}{tag}"
-            lines.append(f"**{NAMES[s]}**：{yuan(last['price'])} → **{yuan(cur['price'])}**，降了 {yuan(drop)}{tag}（{fare(cur)}）")
+            t = f"{name} 降到 {yuan(r['price'])}{tag}"
+            lines.append(f"**{name}**：{yuan(last['price'])} → **{yuan(r['price'])}**，降了 {yuan(last['price'] - r['price'])}{tag}\n{detail(r)}")
         title = title or t
-    body = "\n\n".join(lines)
-    body += f"\n\n[打开价格看板]({SITE})　[去携程查 2/11–2/15]({CTRIP})"
+    body = "\n\n".join(lines) + f"\n\n[打开价格看板]({SITE})　[去携程买]({CTRIP})"
     return "机票降价：" + title, body
 
 
@@ -103,21 +101,31 @@ def send(title, body):
 
 
 def main():
-    rows = load_rows()
+    rows = load()
     if os.environ.get("MODE") == "test":
         latest = {}
-        for r in sorted(rows, key=lambda r: r["checked"]):
-            latest[r.get("series")] = r
-        lines = [f"**{NAMES[s]}**：{yuan(latest[s]['price'])}（{latest[s]['checked']} 查到）" for s in ORDER if s in latest]
-        body = "微信降价提醒已经接通。以后价格一降，就会推送到这里。\n\n现在的价格：\n\n" + "\n\n".join(lines)
+        for r in rows:
+            latest[r["trip"]] = r
+        lines = [f"**{LABELS[t]}**：{yuan(latest[t]['price'])}（{latest[t].get('checked_at', '')[:16].replace('T', ' ')} 查到）" for t in LABELS if t in latest]
+        body = "微信降价提醒已经接通。2/11（或 2/10）去、2/15 回 的往返价一降，就会推送到这里。"
+        if lines:
+            body += "\n\n现在的价格：\n\n" + "\n\n".join(lines)
         body += f"\n\n[打开价格看板]({SITE})"
         send("测试：机票降价提醒已接通", body)
         return
-    changes = find_changes(rows)
+    try:
+        with open("new_rows.json", encoding="utf-8") as f:
+            ids = set(json.load(f))
+    except FileNotFoundError:
+        last_by_trip = {}
+        for r in rows:
+            last_by_trip[r["trip"]] = r["id"]
+        ids = set(last_by_trip.values())
+    changes = changes_for(rows, ids)
     if not changes:
         print("这次没有降价，不推送。")
         return
-    send(*build_message(changes))
+    send(*message(changes))
 
 
 if __name__ == "__main__":

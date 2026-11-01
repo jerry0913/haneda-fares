@@ -1,27 +1,5 @@
 {
- "updated": "2026-11-01T15:00:00Z",
- "rows": [
-  {
-   "id": "2026-11-01_pek_feb",
-   "checked": "2026-11-01",
-   "series": "pek_feb",
-   "series_name": "首都–羽田 2月起价",
-   "price": 2260,
-   "airline": "全日空",
-   "direct": "直飞",
-   "fare_dates": "2/19 去 · 2/27 回",
-   "source": "Skyscanner 首都–羽田航线页"
-  },
-  {
-   "id": "2026-11-01_pkx_feb",
-   "checked": "2026-11-01",
-   "series": "pkx_feb",
-   "series_name": "大兴–羽田 2月起价",
-   "price": 2807,
-   "airline": "南方航空",
-   "direct": "直飞",
-   "fare_dates": "2/19 去 · 2/22 回",
-   "source": "Skyscanner 大兴–羽田航线页"
-  }
- ]
+ "updated": null,
+ "rows": [],
+ "google_history": {}
 }

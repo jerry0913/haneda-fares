@@ -1,0 +1,52 @@
+name: 每日查价
+
+on:
+  schedule:
+    - cron: "30 23 * * *"   # 东京时间 08:30
+    - cron: "30 11 * * *"   # 东京时间 20:30
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/scripts/fetch.py
+      - .github/workflows/fetch.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 安装
+        run: pip install --quiet faster-flights || pip install --quiet fast-flights
+      - name: 查 2/11、2/10 去 2/15 回 的价格
+        id: fetch
+        run: python3 .github/scripts/fetch.py
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+      - name: 保存结果
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prices.json fetch-log.txt
+          if git diff --cached --quiet; then echo "没有变化"; exit 0; fi
+          git commit -m "查价 $(TZ=Asia/Tokyo date +'%F %H:%M')"
+          git pull --rebase origin main
+          git push
+      - name: 降价就推送到微信
+        if: steps.fetch.outcome == 'success'
+        run: python3 .github/scripts/notify.py
+        env:
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+          MODE: auto
