@@ -1,4 +1,4 @@
-"""查 2/11（或 2/10）去、2/15 回 的北京⇄东京羽田往返最低价，追加到 prices.json。
+"""查 2/11（或 2/10）去、2/15 回 的北京⇄东京羽田直飞往返最低价（去回都直飞），追加到 prices.json。
 
 优先用 SerpApi（设置了 SERPAPI_KEY 时）：人民币报价 + Google 记录的历史价格。
 没有 key 时用 faster-flights 直接读 Google Flights。
@@ -46,6 +46,7 @@ def via_serpapi(trip, key):
         "outbound_date": trip["out"],
         "return_date": trip["ret"],
         "type": "1",
+        "stops": "1",
         "travel_class": "1",
         "adults": "1",
         "currency": "CNY",
@@ -61,8 +62,10 @@ def via_serpapi(trip, key):
     options = [o for o in options if to_int(o.get("price"))]
     if not options:
         raise RuntimeError("SerpApi 没有返回带价格的航班")
+    options = [o for o in options if len(o.get("flights") or []) == 1]
+    if not options:
+        raise RuntimeError("SerpApi 没有直飞航班")
     best = min(options, key=lambda o: to_int(o["price"]))
-    directs = [o for o in options if len(o.get("flights") or []) == 1]
     legs = best.get("flights") or [{}]
     first = legs[0]
     ins = data.get("price_insights") or {}
@@ -75,17 +78,13 @@ def via_serpapi(trip, key):
         "price": to_int(best["price"]),
         "airline": first.get("airline") or "",
         "airport": (first.get("departure_airport") or {}).get("id") or "",
-        "stops": max(0, len(legs) - 1),
         "depart_time": ((first.get("departure_airport") or {}).get("time") or "")[-5:],
         "price_level": ins.get("price_level") or "",
         "typical_low": to_int(rng[0]) if len(rng) > 0 else None,
         "typical_high": to_int(rng[1]) if len(rng) > 1 else None,
         "source": "Google Flights（SerpApi）",
-        **({
-            "direct_price": to_int(min(directs, key=lambda o: to_int(o["price"]))["price"]),
-            "direct_airline": (min(directs, key=lambda o: to_int(o["price"]))["flights"][0]).get("airline") or "",
-            "direct_airport": ((min(directs, key=lambda o: to_int(o["price"]))["flights"][0]).get("departure_airport") or {}).get("id") or "",
-        } if directs else {}),
+        "stops": 0,
+        "nonstop": True,
     }, hist
 
 
@@ -113,12 +112,15 @@ def ff_option(f, origin):
 
 
 def via_fastflights(trip):
+    import inspect
+
     import fast_flights as ff
 
-    options = []
+    params = list(inspect.signature(ff.create_query).parameters)
+    best = None
     for origin in ORIGINS:
         try:
-            q = ff.create_query(
+            kw = dict(
                 flights=[
                     ff.FlightQuery(date=trip["out"], from_airport=origin, to_airport=DEST),
                     ff.FlightQuery(date=trip["ret"], from_airport=DEST, to_airport=origin),
@@ -129,25 +131,39 @@ def via_fastflights(trip):
                 language="zh-CN",
                 currency="CNY",
             )
-            got = [ff_option(f, origin) for f in ff.get_flights(q)]
-            got = [o for o in got if o["price"]]
-            for o in sorted(got, key=lambda o: o["price"]):
-                log(f"  {origin} ¥{o['price']} {o['airline']} {'直飞' if o['stops'] == 0 else '经' + (o['via'] or '?')} {o['depart_time']}起飞")
-            options += got
+            if "max_stops" in params:
+                kw["max_stops"] = 0
+            q = ff.create_query(**kw)
+            outs = [(f, ff_option(f, origin)) for f in ff.get_flights(q)]
+            directs = sorted([(f, o) for f, o in outs if o["stops"] == 0 and o["price"]], key=lambda x: x[1]["price"])
+            log(f"  {origin} 直飞去程 {len(directs)} 个：" + "；".join(f"{o['airline']} {o['depart_time']} ¥{o['price']}" for _, o in directs))
+            for f, o in directs[:5]:
+                try:
+                    rets = [ff_option(r, origin) for r in ff.get_return_flights(ff.select_flight(q, f))]
+                    rd = sorted([r for r in rets if r["stops"] == 0 and r["price"]], key=lambda r: r["price"])
+                    log(f"    {o['airline']} {o['depart_time']} 去 → 直飞回程：" + ("；".join(f"{r['airline']} {r['depart_time']} 往返¥{r['price']}" for r in rd) or "没有"))
+                    if not rd:
+                        continue
+                    r = rd[0]
+                    cand = {
+                        "price": r["price"],
+                        "airline": o["airline"],
+                        "airport": origin,
+                        "depart_time": o["depart_time"],
+                        "ret_airline": r["airline"],
+                        "ret_time": r["depart_time"],
+                    }
+                    if best is None or cand["price"] < best["price"]:
+                        best = cand
+                except Exception as e:  # noqa: BLE001
+                    log("    选回程出错:", repr(e)[:300])
         except Exception as e:  # noqa: BLE001
             log(origin, "faster-flights 出错:", repr(e)[:400])
             log(traceback.format_exc()[-600:])
-    if not options:
-        raise RuntimeError("faster-flights 没拿到价格")
-    best = min(options, key=lambda o: o["price"])
-    directs = [o for o in options if o["stops"] == 0]
-    out = dict(best)
-    if directs:
-        d = min(directs, key=lambda o: o["price"])
-        out.update({"direct_price": d["price"], "direct_airline": d["airline"], "direct_airport": d["airport"], "direct_depart_time": d["depart_time"]})
-    out["price_level"] = ""
-    out["source"] = "Google Flights"
-    return out, []
+    if not best:
+        raise RuntimeError("没找到去回都直飞的往返价")
+    best.update({"stops": 0, "nonstop": True, "price_level": "", "source": "Google Flights"})
+    return best, []
 
 
 def main():
@@ -162,7 +178,7 @@ def main():
         data = {}
     data.setdefault("rows", [])
     data.setdefault("google_history", {})
-    data["rows"] = [r for r in data["rows"] if r.get("trip") in TRIPS]  # 只保留这段行程
+    data["rows"] = [r for r in data["rows"] if r.get("trip") in TRIPS and r.get("nonstop")]  # 只保留这段行程的直飞往返
 
     key = os.environ.get("SERPAPI_KEY", "").strip()
     new_rows = []

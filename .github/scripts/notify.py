@@ -1,4 +1,4 @@
-"""查价后检查 2/11（或 2/10）去、2/15 回 的往返价有没有降，降了就推送到微信（PushPlus 或 Server酱）。"""
+"""查价后检查 2/11（或 2/10）去、2/15 回 的直飞往返价有没有降，降了就推送到微信（PushPlus 或 Server酱）。"""
 import json
 import os
 import sys
@@ -18,7 +18,7 @@ def yuan(n):
 def load():
     with open("prices.json", encoding="utf-8") as f:
         data = json.load(f)
-    rows = [r for r in data.get("rows", []) if r.get("trip") in LABELS and r.get("price")]
+    rows = [r for r in data.get("rows", []) if r.get("trip") in LABELS and r.get("nonstop") and r.get("price")]
     for r in rows:
         r["price"] = int(r["price"])
     rows.sort(key=lambda r: r.get("checked_at") or r.get("checked") or "")
@@ -26,12 +26,11 @@ def load():
 
 
 def detail(r):
-    bits = [r.get("airline") or "", r.get("airport") or ""]
-    if r.get("stops") == 0:
-        bits.append("直飞")
-    elif isinstance(r.get("stops"), int):
-        bits.append(f"转机{r['stops']}次")
-    s = " ".join(b for b in bits if b)
+    ap = {"PEK": "首都", "PKX": "大兴"}.get(r.get("airport"), r.get("airport") or "")
+    s = f"去程 {r.get('airline') or ''} {ap}出发 {r.get('depart_time') or ''}".strip()
+    if r.get("ret_airline") or r.get("ret_time"):
+        s += f"；回程 {r.get('ret_airline') or ''} {r.get('ret_time') or ''}".rstrip()
+    s += "（去回都直飞）"
     lvl = LEVELS.get(r.get("price_level") or "")
     if lvl:
         s += f"；Google 判断价格{lvl}"
@@ -61,8 +60,8 @@ def message(changes):
     for kind, r, last, new_low in changes:
         name = LABELS[r["trip"]]
         if kind == "first":
-            t = f"{name} 往返 {yuan(r['price'])}"
-            lines.append(f"**{name}**：第一次记录到往返 **{yuan(r['price'])}**\n{detail(r)}")
+            t = f"{name} 直飞往返 {yuan(r['price'])}"
+            lines.append(f"**{name}**：第一次记录到直飞往返 **{yuan(r['price'])}**\n{detail(r)}")
         else:
             tag = "，历史新低" if new_low else ""
             t = f"{name} 降到 {yuan(r['price'])}{tag}"
@@ -107,7 +106,7 @@ def main():
         for r in rows:
             latest[r["trip"]] = r
         lines = [f"**{LABELS[t]}**：{yuan(latest[t]['price'])}（{latest[t].get('checked_at', '')[:16].replace('T', ' ')} 查到）" for t in LABELS if t in latest]
-        body = "微信降价提醒已经接通。2/11（或 2/10）去、2/15 回 的往返价一降，就会推送到这里。"
+        body = "微信降价提醒已经接通。2/11（或 2/10）去、2/15 回 的直飞往返价一降，就会推送到这里。"
         if lines:
             body += "\n\n现在的价格：\n\n" + "\n\n".join(lines)
         body += f"\n\n[打开价格看板]({SITE})"
