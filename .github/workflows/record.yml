@@ -1,0 +1,41 @@
+name: 记一笔价格
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: prices
+  cancel-in-progress: false
+
+jobs:
+  record:
+    # 只接受仓库主人自己提交的价格
+    if: github.event.issue.user.login == github.repository_owner && contains(github.event.issue.body, '### 平台')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 写入价格
+        id: rec
+        run: python3 .github/scripts/record.py
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_CREATED: ${{ github.event.issue.created_at }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+      - name: 保存
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prices.json
+          git commit -m "记价格 #${{ github.event.issue.number }}"
+          for i in 1 2 3; do git pull --rebase origin main && git push && break; sleep 5; done
+      - name: 回复并关闭
+        if: always()
+        run: gh issue close "${{ github.event.issue.number }}" --comment "$(cat record-result.txt 2>/dev/null || echo '没记上，请检查价格是不是数字。')"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}

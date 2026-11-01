@@ -1,0 +1,38 @@
+name: 记一笔价格
+description: 把你在携程、去哪儿等平台看到的直飞往返价记到网站上
+title: 记价格
+body:
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 平台
+      options:
+        - 携程
+        - 去哪儿
+        - 飞猪
+        - 同程
+        - 航司官网
+        - 其他
+    validations:
+      required: true
+  - type: dropdown
+    id: trip
+    attributes:
+      label: 日期
+      options:
+        - 2/11 去 · 2/15 回
+        - 2/10 去 · 2/15 回
+    validations:
+      required: true
+  - type: input
+    id: price
+    attributes:
+      label: 直飞往返价（元，含税，1人）
+      placeholder: "5228"
+    validations:
+      required: true
+  - type: input
+    id: airline
+    attributes:
+      label: 航司（可不填）
+      placeholder: 国航

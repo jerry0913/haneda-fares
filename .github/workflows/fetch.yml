@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: fetch
+  group: prices
   cancel-in-progress: false
 
 jobs:

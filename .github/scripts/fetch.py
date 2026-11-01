@@ -147,7 +147,6 @@ def via_fastflights(trip):
         except Exception as e:  # noqa: BLE001
             log(f"  {origin} 出错:", repr(e)[:300])
     best = None
-    best_objs = None
     for q, f, o in sorted(outbound.values(), key=lambda x: x[2]["price"])[:10]:
         try:
             rets = [ff_option(r, o["airport"]) for r in ff.get_return_flights(ff.select_flight(q, f))]
@@ -160,31 +159,10 @@ def via_fastflights(trip):
                     "ret_airline": r["airline"], "ret_time": r["depart_time"]}
             if best is None or cand["price"] < best["price"]:
                 best = cand
-                best_objs = (q, f, rets, r)
         except Exception as e:  # noqa: BLE001
             log("    选回程出错:", repr(e)[:300])
     if not best:
         raise RuntimeError("没找到去回都直飞的往返价")
-    # 调试：看看能不能拿到各平台报价
-    try:
-        import inspect
-        for name in ("select_flight", "get_selected_flight_page", "build_booking_url", "SelectedFlightPage"):
-            obj = getattr(ff, name, None)
-            try:
-                log(f"调试 {name}:", str(inspect.signature(obj))[:400])
-            except Exception as e:  # noqa: BLE001
-                log(f"调试 {name}: -", repr(e)[:80])
-        q, f, rets, _ = best_objs
-        rq = ff.select_flight(q, f)
-        rets_objs = list(ff.get_return_flights(rq))
-        target = min((x for x in rets_objs if ff_option(x, "")["stops"] == 0 and ff_option(x, "")["price"]), key=lambda x: ff_option(x, "")["price"])
-        sel = ff.select_flight(rq, target)
-        log("调试 选定后的类型:", type(sel).__name__)
-        page = ff.get_selected_flight_page(sel)
-        log("调试 选定页:", repr(page)[:3000])
-    except Exception as e:  # noqa: BLE001
-        log("调试 各平台报价失败:", repr(e)[:500])
-        log(traceback.format_exc()[-1200:])
     best.update({"stops": 0, "nonstop": True, "price_level": "", "source": "Google Flights"})
     return best, []
 

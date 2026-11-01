@@ -30,6 +30,10 @@
   --s1: #2a78d6;
   --s2: #eb6834;
   --s3: #1baf7a;
+  --s4: #eda100;
+  --s5: #e87ba4;
+  --s6: #008300;
+  --s7: #6250d6;
   --past: #cfcbe0;
   --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", "Segoe UI", sans-serif;
   --num: "DIN Alternate", Bahnschrift, "Roboto Condensed", "Helvetica Neue", Arial, sans-serif;
@@ -47,6 +51,10 @@
     --s1: #3987e5;
     --s2: #d95926;
     --s3: #199e70;
+    --s4: #c98500;
+    --s5: #d55181;
+    --s6: #008300;
+    --s7: #9085e9;
     --past: #3b3769;
     --shadow: 0 0 0 1px #221f48;
   }
@@ -346,7 +354,7 @@ footer ul { margin: 0; padding-left: 1.1rem; }
 
   <section class="panel" aria-labelledby="trend-h">
     <h2 id="trend-h"><span class="ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>哪天看最便宜</h2>
-    <p class="note">同一张直飞往返票（2/11 去、2/15 回），在不同日子打开看到的价格。蓝线是 Google Flights 上自动查到的，绿点是你在携程查到后发给 Claude 记下的。横轴是查价那天，每天早上 8:30 和晚上 8:30 各记一次；圈出来的点是到目前为止最便宜的一次。</p>
+    <p class="note">同一张直飞往返票（2/11 去、2/15 回），在不同日子打开看到的价格。蓝线是 Google Flights 上每天自动查的；其他颜色是你在携程、去哪儿等平台看到后随手记的。横轴是查价那天，每天早上 8:30 和晚上 8:30 各记一次；圈出来的点是到目前为止最便宜的一次。</p>
     <div class="legend" id="legend"></div>
     <div class="chart" id="trend"></div>
   </section>
@@ -368,7 +376,8 @@ footer ul { margin: 0; padding-left: 1.1rem; }
       <a class="go primary" href="https://flights.ctrip.com/online/list/round-bjs-hnd?depdate=2027-02-11_2027-02-15&amp;cabin=y_s&amp;adult=1" target="_blank" rel="noopener">携程 <span>日期已填好</span></a>
       <a class="go" href="https://www.google.com/travel/flights?q=Nonstop%20flights%20from%20BJS%20to%20HND%20on%202027-02-11%20through%202027-02-15&amp;curr=CNY&amp;hl=zh-CN" target="_blank" rel="noopener">Google Flights <span>和这里的价格同源</span></a>
       <a class="go" href="https://www.tianxun.com/transport/flights/bjsa/hnd/270211/270215/?adultsv2=1&amp;cabinclass=economy" target="_blank" rel="noopener">天巡 <span>多平台比价</span></a>
-      <p>这里记的是 Google Flights 上的价格，携程上同一航班有时会再便宜一点，下单前对比一下。</p>
+      <a class="go" href="https://github.com/jerry0913/haneda-fares/issues/new?template=price.yml" target="_blank" rel="noopener">记一笔你看到的价格 <span>携程、去哪儿等</span></a>
+      <p>携程、去哪儿不让程序自动查价，你在 App 里看到价格后点上面这个按钮记一笔（选平台、填价格），一两分钟后就会出现在网站上，和 Google 的自动价一起比出最低。</p>
     </div>
   </section>
 
@@ -408,7 +417,7 @@ footer ul { margin: 0; padding-left: 1.1rem; }
   <footer>
     <span>数据来源</span>
     <ul>
-      <li>价格：Google Flights 上去回都直飞的往返最低价，每天东京时间 8:30 和 20:30 自动查询，经济舱 1 人含税</li>
+      <li>价格：Google Flights 上去回都直飞的往返最低价，每天东京时间 8:30 和 20:30 自动查询，经济舱 1 人含税；携程、去哪儿等平台的价格是你手动记的，48 小时内的记录参与比最低价</li>
       <li><a href="https://www.kayak.com/flight-routes/Beijing-Capital-PEK/Tokyo-Haneda-HND" target="_blank" rel="noopener">Kayak</a>、<a href="https://us.jetcost.com/en/flights/beijing-capital/tokyo-haneda/PEK-HND" target="_blank" rel="noopener">Jetcost</a>、<a href="https://www.tianxun.com/routes/pek/hnd/beijing-capital-to-tokyo-haneda.html" target="_blank" rel="noopener">天巡</a>（提前多久买）</li>
       <li><a href="https://m.thepaper.cn/newsDetail_forward_29984028" target="_blank" rel="noopener">澎湃新闻 2025年春节机票</a>、<a href="https://www.21jingji.com/article/20260130/herald/f0c85ab6732c41e32d9f79b391408bbb.html" target="_blank" rel="noopener">21世纪经济报道 2026年中日航线</a>、<a href="https://www.ccaonline.cn/yunshu/ystop/1152039.html" target="_blank" rel="noopener">民航资源网</a>、<a href="http://www.news.cn/world/20260126/9905820e6427452b8a58435fa3b1dd17/c.html" target="_blank" rel="noopener">新华网 退改政策</a>、<a href="https://www.sohu.com/a/1095505594_121123774" target="_blank" rel="noopener">2027年放假推算</a></li>
     </ul>
@@ -419,11 +428,22 @@ footer ul { margin: 0; padding-left: 1.1rem; }
 (() => {
   const DEPART = Date.UTC(2027, 1, 11); // 出发日 2027-02-11
   const TRIPS = { d11: '2/11 去 · 2/15 回', d10: '2/10 去 · 2/15 回' };
-  // 图上的三条线
+  // 各平台
+  const SRC = {
+    google: { name: 'Google Flights', color: 'var(--s1)' },
+    ctrip: { name: '携程', color: 'var(--s3)' },
+    qunar: { name: '去哪儿', color: 'var(--s4)' },
+    fliggy: { name: '飞猪', color: 'var(--s5)' },
+    tongcheng: { name: '同程', color: 'var(--s6)' },
+    airline: { name: '航司官网', color: 'var(--s7)' },
+    other: { name: '其他平台', color: 'var(--ink-2)' },
+  };
+  const MANUAL_FRESH_HOURS = 48; // 手动记的价格多久内算“现在的价”
+  // 图上的线：Google 自动查的两组日期 + 各平台手动记录（2/11 去）
   const SERIES = [
-    { id: 'd11', field: 'price', src: 'google', name: '2/11 去 直飞往返（Google）', color: 'var(--s1)' },
-    { id: 'd10', field: 'price', src: 'google', name: '2/10 去 直飞往返（Google）', color: 'var(--s2)' },
-    { id: 'd11', field: 'price', src: 'ctrip', name: '2/11 去 携程（你查到的）', color: 'var(--s3)' },
+    { id: 'd11', field: 'price', src: 'google', name: '2/11 去（Google 自动）', color: 'var(--s1)' },
+    { id: 'd10', field: 'price', src: 'google', name: '2/10 去（Google 自动）', color: 'var(--s2)' },
+    ...['ctrip', 'qunar', 'fliggy', 'tongcheng', 'airline', 'other'].map((k) => ({ id: 'd11', field: 'price', src: k, name: `2/11 去（${SRC[k].name}）`, color: SRC[k].color })),
   ];
   const LEVELS = { low: '偏低', typical: '正常', high: '偏高' };
   const YEARS = [
@@ -570,14 +590,25 @@ footer ul { margin: 0; padding-left: 1.1rem; }
     return rs.length ? rs.reduce((m, r) => (r[field] < m[field] ? r : m), rs[0]) : null;
   }
 
+  function currentQuotes(trip) {
+    const now = Date.now();
+    return Object.keys(SRC).map((k) => latestOf(trip, k)).filter((r) => r && (r.src === 'google' || now - new Date(r.checked_at) < MANUAL_FRESH_HOURS * 3600e3));
+  }
+  function currentBest(trip) {
+    const q = currentQuotes(trip);
+    return q.length ? q.reduce((m, r) => (r.price < m.price ? r : m), q[0]) : null;
+  }
+  const srcText = (r) => (r.src === 'google' ? routeText(r) : `${SRC[r.src].name}${r.airline ? ' ' + r.airline : ''}，${fmtWhen(r.checked_at)}你记的`);
+
   function drawBoard() {
     ['d11', 'd10'].forEach((trip, i) => {
       const row = $(`.row[data-trip="${trip}"]`);
       const price = $('[data-f="price"]', row), detail = $('[data-f="detail"]', row);
-      const r = latestOf(trip);
+      const r = currentBest(trip);
       if (!r) { setFlaps(price, '----', { dim: true }); detail.textContent = '还没查到直飞往返价，等下一次自动查价。'; return; }
       setFlaps(price, fmtPrice(r.price), { delay: 300 + i * 160 });
-      detail.textContent = [routeText(r), directText(r)].filter(Boolean).join('；');
+      const g = latestOf(trip);
+      detail.textContent = srcText(r) + (r.src !== 'google' && g ? `；Google ¥${fmtPrice(g.price)}` : '');
     });
   }
 
@@ -585,27 +616,25 @@ footer ul { margin: 0; padding-left: 1.1rem; }
     const lead = $('#lead'), facts = $('#facts');
     facts.replaceChildren();
     const r = latestOf('d11');
-    if (!r) { lead.textContent = '还没查到 2/11–2/15 的直飞往返价格，下一次自动查价完成后这里会显示。'; return; }
-    lead.replaceChildren(document.createTextNode('Google 上 2/11–2/15 直飞往返最低 '), h('strong', '', '¥' + fmtPrice(r.price)), document.createTextNode('。'));
+    const best = currentBest('d11');
+    if (!best) { lead.textContent = '还没查到 2/11–2/15 的直飞往返价格，下一次自动查价完成后这里会显示。'; return; }
+    lead.replaceChildren(document.createTextNode('现在 2/11–2/15 直飞往返最低 '), h('strong', '', '¥' + fmtPrice(best.price)), document.createTextNode(`，在${SRC[best.src].name}。`));
     const add = (color, parts) => { const li = h('li'); const dot = h('i'); dot.style.background = color; li.append(dot); const span = h('span'); parts.forEach((p) => span.append(typeof p === 'string' ? document.createTextNode(p) : p)); li.append(span); facts.append(li); };
-    const low = lowestOf('d11');
-    const ct = latestOf('d11', 'ctrip');
-    if (ct) {
-      const diff = ct.price - r.price;
-      add('var(--s3)', ['你在携程查到：', h('b', '', '¥' + fmtPrice(ct.price)), `（${ct.airline || ''}，${fmtWhen(ct.checked_at)}）`, diff < 0 ? `，比 Google 便宜 ¥${fmtPrice(-diff)}` : diff > 0 ? `，比 Google 贵 ¥${fmtPrice(diff)}` : '，和 Google 一样']);
+    // 各平台现在的价
+    currentQuotes('d11').sort((a, b) => a.price - b.price).forEach((q) => {
+      add(SRC[q.src].color, [`${SRC[q.src].name}：`, h('b', '', '¥' + fmtPrice(q.price)), q.src === 'google' ? `（自动查，${fmtWhen(q.checked_at)}）` : `（${q.airline ? q.airline + '，' : ''}${fmtWhen(q.checked_at)}你记的）`]);
+    });
+    const d11rows = ROWS.filter((x) => x.trip === 'd11');
+    if (d11rows.length > 1) {
+      const low = d11rows.reduce((m, x) => (x.price < m.price ? x : m), d11rows[0]);
+      add('var(--ink-2)', ['到目前为止最便宜的一次：', h('b', '', '¥' + fmtPrice(low.price)), `，${fmtWhen(low.checked_at)}在${SRC[low.src].name}看到`]);
     }
-    if (low && ROWS.filter((x) => x.trip === 'd11' && x.src === 'google').length > 1) {
-      add('var(--s1)', ['到目前为止最便宜的一次：', h('b', '', '¥' + fmtPrice(low.price)), `，${fmtWhen(low.checked_at)}查到`]);
-    } else {
-      add('var(--s1)', ['今天开始记录，之后这里会告诉你哪天看到的最便宜。']);
-    }
-    if (r.direct_price) add('var(--s2)', ['直飞最低 ', h('b', '', '¥' + fmtPrice(r.direct_price)), `（${r.direct_airline || ''}${AIRPORT[r.direct_airport] ? '，' + AIRPORT[r.direct_airport] + '出发' : ''}），比最低价多 ¥${fmtPrice(r.direct_price - r.price)}`]);
-    const r10 = latestOf('d10');
+    const r10 = currentBest('d10');
     if (r10) {
-      const diff = r10.price - r.price;
+      const diff = r10.price - best.price;
       add('var(--s2)', ['2/10 去：', h('b', '', '¥' + fmtPrice(r10.price)), diff === 0 ? '，和 2/11 去一样' : diff < 0 ? `，比 2/11 去便宜 ¥${fmtPrice(-diff)}` : `，比 2/11 去贵 ¥${fmtPrice(diff)}`]);
     }
-    if (r.price_level && LEVELS[r.price_level]) {
+    if (r && r.price_level && LEVELS[r.price_level]) {
       const rng = r.typical_low && r.typical_high ? `，这段日子通常 ¥${fmtPrice(r.typical_low)}–¥${fmtPrice(r.typical_high)}` : '';
       add('var(--gold)', [`Google 判断现在的价格${LEVELS[r.price_level]}${rng}`]);
     }
@@ -671,6 +700,7 @@ footer ul { margin: 0; padding-left: 1.1rem; }
     }
     // 主线下的渐变
     const main = series.find((s) => s.id === 'd11' && s.src === 'google');
+    const d11series = series.filter((s) => s.id === 'd11');
     if (main && main.pts.length > 1) {
       const lgd = sv('linearGradient', { id: 'fadeMain', x1: 0, y1: 0, x2: 0, y2: 1 });
       [[0, .22], [.6, .06], [1, 0]].forEach(([o, op]) => { const st = sv('stop', { offset: o, 'stop-opacity': op }); st.style.stopColor = main.color; lgd.append(st); });
@@ -689,12 +719,13 @@ footer ul { margin: 0; padding-left: 1.1rem; }
       const c = sv('circle', { cx: X(p.t), cy: Y(p.v), r: 4.5, fill: s.color, stroke: 'var(--surface)', 'stroke-width': 2 });
       dots.push([s, p, c]); svg.append(c);
     }));
-    // 圈出主线最低点
-    if (main) {
-      const low = main.pts.reduce((m, p) => (p.v < m.v ? p : m), main.pts[0]);
-      svg.append(sv('circle', { cx: X(low.t), cy: Y(low.v), r: 9, class: 'ring', stroke: main.color }));
-      if (main.pts.length > 1 && low !== main.pts[main.pts.length - 1]) {
-        const lab = sv('text', { x: X(low.t), y: Y(low.v) - 15, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700, fill: 'var(--s1)' });
+    // 圈出 2/11 去 所有平台里的最低点
+    const lowPts = d11series.flatMap((s) => s.pts.map((p) => ({ ...p, s })));
+    if (lowPts.length) {
+      const low = lowPts.reduce((m, p) => (p.v < m.v ? p : m), lowPts[0]);
+      svg.append(sv('circle', { cx: X(low.t), cy: Y(low.v), r: 9, class: 'ring', stroke: low.s.color }));
+      if (lowPts.length > 1 && low.t !== Math.max(...lowPts.map((p) => p.t))) {
+        const lab = sv('text', { x: X(low.t), y: Y(low.v) - 15, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700, fill: 'var(--ink)' });
         lab.textContent = '最低 ¥' + fmtPrice(low.v); svg.append(lab);
       }
     }
@@ -742,7 +773,7 @@ footer ul { margin: 0; padding-left: 1.1rem; }
       const tr = document.createElement('tr');
       tr.append(h('td', '', fmtWhenShort(r.checked_at)));
       const trip = h('td', '', TRIPS[r.trip] || r.trip);
-      trip.append(h('span', 'sub', r.src === 'ctrip' ? `携程，你查到的${r.airline ? '，' + r.airline : ''}` : routeText(r)));
+      trip.append(h('span', 'sub', r.src === 'google' ? 'Google 自动，' + routeText(r) : `${SRC[r.src] ? SRC[r.src].name : r.src}，你记的${r.airline ? '，' + r.airline : ''}`));
       tr.append(trip);
       const p = h('td', 'p', '¥' + fmtPrice(r.price));
       if (r._prev && r._prev.price !== r.price) {
