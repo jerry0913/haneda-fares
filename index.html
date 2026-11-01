@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="description" content="2027年2月11日去、2月15日回，北京往返东京羽田机票每日价格记录">
+<title>北京⇄羽田 春节机票监控</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a78d6'/%3E%3Cpath d='M6 19l20-8-3 9-6-2-3 5-1-6z' fill='white'/%3E%3C/svg%3E">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f3ef;
+  --panel: #fcfcfb;
+  --fg: #1d1d1b;
+  --muted: #6b6a65;
+  --line: #e2e0d8;
+  --grid: #ebe9e3;
+  --axis: #c9c7bf;
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --past: #cfccc4;
+  --warn: #9a5b00;
+  --radius: 10px;
+  --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  --serif: Georgia, "Songti SC", "Noto Serif CJK SC", "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #121211;
+    --panel: #1a1a19;
+    --fg: #f0efec;
+    --muted: #c3c2b7;
+    --line: #33322e;
+    --grid: #272724;
+    --axis: #4a4943;
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+    --past: #4d4b45;
+    --warn: #e0a24a;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
+a { color: inherit; }
+.page { max-width: 60rem; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 16px; }
+header { display: grid; gap: 6px; padding: 4px 2px 6px; }
+h1 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(1.45rem, 5vw, 2rem); line-height: 1.25; letter-spacing: .01em; }
+.take { margin: 0; color: var(--muted); }
+.take b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.updated { margin: 0; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: 12px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.tile { padding: 14px 16px; gap: 4px; }
+.label { margin: 0; font-size: 12.5px; color: var(--muted); }
+.big { margin: 0; font-family: var(--serif); font-size: 1.9rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.big .unit { font-family: var(--sans); font-size: 14px; color: var(--muted); margin-left: 3px; }
+.big.muted { color: var(--muted); font-size: 1.5rem; }
+.note { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.55; font-variant-numeric: tabular-nums; }
+h2 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.chart { position: relative; min-height: 250px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.14); padding: 6px 10px; font-size: 12.5px; line-height: 1.5; white-space: nowrap; z-index: 2; }
+.tip .d { color: var(--muted); }
+.tip .r { display: flex; align-items: center; gap: 6px; }
+.tip .dot { width: 8px; height: 8px; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; }
+.links a { text-decoration: none; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); font-size: 14px; }
+.tl { position: relative; padding-top: 26px; }
+.tl .lane { display: grid; gap: 4px; padding-block: 6px; }
+.tl .txt { font-size: 12.5px; line-height: 1.45; position: relative; z-index: 1; }
+.tl .txt span { background: var(--panel); box-decoration-break: clone; -webkit-box-decoration-break: clone; padding-right: 2px; }
+.tl .txt em { font-style: normal; color: var(--muted); }
+.tl .track { position: relative; z-index: 1; height: 10px; background: var(--grid); border-radius: 5px; }
+.tl .bar { position: absolute; top: 0; height: 10px; border-radius: 5px; min-width: 10px; }
+.tl .rule { position: absolute; top: 22px; bottom: 26px; border-left: 2px solid var(--fg); z-index: 0; }
+.tl .rule.today { border-left: 2px dashed var(--muted); }
+.tl .flag { position: absolute; top: 0; transform: translateX(-50%); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tl .flag.today { color: var(--muted); }
+.tl .axis { position: relative; height: 22px; margin-top: 4px; border-top: 1px solid var(--axis); }
+.tl .axis span { position: absolute; top: 4px; transform: translateX(-50%); font-size: 12px; color: var(--muted); }
+ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 8px; }
+.tablebox { overflow: auto; max-height: 28rem; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.5; }
+th { position: sticky; top: 0; background: var(--panel); color: var(--muted); font-weight: 500; white-space: nowrap; }
+.log td { white-space: nowrap; }
+.hist td:first-child { font-family: var(--serif); font-size: 1.1rem; }
+@media (max-width: 40rem) {
+  .hist thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .hist tr { display: block; padding-block: 10px; border-bottom: 1px solid var(--line); }
+  .hist td { display: block; border: 0; padding: 2px 0; }
+  .hist td::before { display: block; color: var(--muted); font-size: 12px; }
+  .hist td:nth-child(2)::before { content: "当年春节假期"; }
+  .hist td:nth-child(3)::before { content: "2月11–15日在当年是"; }
+  .hist td:nth-child(4)::before { content: "行情"; }
+  .hist td:nth-child(5)::before { content: "价格线索"; }
+}
+.err { color: var(--warn); }
+footer { font-size: 12px; color: var(--muted); display: grid; gap: 6px; padding: 4px 2px; }
+footer ul { margin: 0; padding-left: 1.1rem; }
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <h1>北京 ⇄ 东京羽田 · 2月11日去 2月15日回</h1>
+    <p class="take">目前查到的2月往返最低 <b id="best-price">—</b>（<span id="best-name">—</span>）。你的日期是春节假期尾段（正月初六）出发、节后周一（初十）返回，避开了出境和返程两个高峰；但春节期间的便宜舱位往往先卖完，别按平日“提前40天最便宜”的规律干等。</p>
+    <p class="updated">最后更新：<span id="updated">—</span> · 每天早上自动查一次</p>
+  </header>
+
+  <section class="tiles" aria-label="关键数字">
+    <div class="card tile">
+      <p class="label">距出发</p>
+      <p class="big"><span id="countdown">—</span><span class="unit">天</span></p>
+      <p class="note">2027年2月11日 周四 · 正月初六</p>
+    </div>
+    <div class="card tile" data-series="pek_feb">
+      <p class="label">首都–羽田 · 2月整月起价</p>
+      <p class="big" data-f="price">—</p>
+      <p class="note" data-f="detail">—</p>
+      <p class="note" data-f="low">—</p>
+    </div>
+    <div class="card tile" data-series="pkx_feb">
+      <p class="label">大兴–羽田 · 2月整月起价</p>
+      <p class="big" data-f="price">—</p>
+      <p class="note" data-f="detail">—</p>
+      <p class="note" data-f="low">—</p>
+    </div>
+    <div class="card tile" data-series="exact">
+      <p class="label">你的日期 2/11–2/15 · 往返</p>
+      <p class="big" data-f="price">—</p>
+      <p class="note" data-f="detail">—</p>
+      <p class="note" data-f="low">—</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>价格走势</h2>
+    <p class="note">横轴是“哪天查的”，纵轴是当天看到的往返最低价（含税，经济舱，1人）。线上最低的那一天，就是“哪天看最便宜”的答案。</p>
+    <div class="legend" id="legend"></div>
+    <div class="chart" id="trend"></div>
+  </section>
+
+  <section class="card">
+    <h2>查你这几天的精确价格</h2>
+    <p class="note">已填好 北京（首都+大兴）→ 羽田，2027年2月11日去、2月15日回。查到的价格发给 Claude，就会记进这个网站。</p>
+    <div class="links">
+      <a href="https://flights.ctrip.com/online/list/round-bjs-hnd?depdate=2027-02-11_2027-02-15&amp;cabin=y_s&amp;adult=1" target="_blank" rel="noopener">携程</a>
+      <a href="https://www.tianxun.com/transport/flights/bjsa/hnd/270211/270215/?adultsv2=1&amp;cabinclass=economy" target="_blank" rel="noopener">Skyscanner 天巡</a>
+      <a href="https://www.google.com/travel/flights?q=Flights%20from%20BJS%20to%20HND%20on%202027-02-11%20through%202027-02-15&amp;curr=CNY&amp;hl=zh-CN" target="_blank" rel="noopener">Google Flights</a>
+    </div>
+    <p class="note">Skyscanner 和 Google Flights 都能给这组日期开“价格提醒”，降价会推送，和这里的每日记录互补。</p>
+  </section>
+
+  <section class="card">
+    <h2>什么时候买</h2>
+    <p class="note">几家比价平台对北京–东京航线“提前多久买最便宜”的统计，按2月11日出发换算成日期。它们基于平日数据，春节日期通常更早变贵。</p>
+    <div class="tl" id="timeline"></div>
+  </section>
+
+  <section class="card">
+    <h2>建议</h2>
+    <ol class="steps">
+      <li>先查一次你这组日期的价格并记下来，才有你自己日期的起点。</li>
+      <li>拿它和上面的“2月整月起价”比：只贵几百元，说明春节没怎么加价，合适就下手；贵出很多，就继续盯，但别拖过12月中旬——Jetcost 的统计里，出发前8周左右（12月17日前后）通常最贵。</li>
+      <li>国务院的放假安排往年在11月公布，公布后热门日期会更紧；到时价格已经合适，就别再等。</li>
+      <li>中国航司涉日航线的免费退改只覆盖到2026年10月24日出行，没查到延长到这个冬春航季的公告。下单前看清退改规则，尽量选能免费改期的票价；出发前看一下外交部的最新出行提醒。</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>往年同期对比</h2>
+    <p class="note">没有公开的逐日历史票价，所以这里比的是2月11–15日在当年春节中的位置、当年行情和新闻里的价格线索。</p>
+    <div class="tablebox" style="max-height:none">
+      <table class="hist">
+        <thead><tr><th>年份</th><th>当年春节假期</th><th>2月11–15日在当年是</th><th>行情</th><th>价格线索</th></tr></thead>
+        <tbody id="history"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>全部记录</h2>
+    <p class="note">“2月整月起价”是 Skyscanner 航线页在过去约4天里看到的2月任意日期最低往返价，不是你那几天的价格，但能看出整个2月的价格水位怎么走。</p>
+    <div class="tablebox">
+      <table class="log">
+        <thead><tr><th>查价日</th><th>线路</th><th>往返价（元）</th><th>航司</th><th>那张票的日期</th><th>直飞</th></tr></thead>
+        <tbody id="log"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <span>数据来源</span>
+    <ul>
+      <li><a href="https://www.tianxun.com/routes/pek/hnd/beijing-capital-to-tokyo-haneda.html" target="_blank" rel="noopener">Skyscanner 首都–羽田航线页</a>、<a href="https://www.tianxun.com/routes/pkx/hnd/beijing-daxing-to-tokyo-haneda.html" target="_blank" rel="noopener">大兴–羽田航线页</a>（每日价格）</li>
+      <li><a href="https://www.kayak.com/flight-routes/Beijing-Capital-PEK/Tokyo-Haneda-HND" target="_blank" rel="noopener">Kayak</a>、<a href="https://us.jetcost.com/en/flights/beijing-capital/tokyo-haneda/PEK-HND" target="_blank" rel="noopener">Jetcost</a>（提前多久买）</li>
+      <li><a href="https://m.thepaper.cn/newsDetail_forward_29984028" target="_blank" rel="noopener">澎湃新闻 2025年春节机票</a>、<a href="https://www.21jingji.com/article/20260130/herald/f0c85ab6732c41e32d9f79b391408bbb.html" target="_blank" rel="noopener">21世纪经济报道 2026年中日航线</a>、<a href="https://www.ccaonline.cn/yunshu/ystop/1152039.html" target="_blank" rel="noopener">民航资源网</a>、<a href="http://www.news.cn/world/20260126/9905820e6427452b8a58435fa3b1dd17/c.html" target="_blank" rel="noopener">新华网 退改政策</a>、<a href="https://www.sohu.com/a/1095505594_121123774" target="_blank" rel="noopener">2027年放假推算</a></li>
+    </ul>
+  </footer>
+</main>
+
+<script>
+(() => {
+  const DEPART = Date.UTC(2027, 1, 11); // 出发日 2027-02-11
+  const SERIES = [
+    { id: 'pek_feb', name: '首都–羽田 2月起价', color: 'var(--s1)' },
+    { id: 'pkx_feb', name: '大兴–羽田 2月起价', color: 'var(--s2)' },
+    { id: 'exact', name: '你的日期 2/11–2/15', color: 'var(--s3)' },
+  ];
+  const HISTORY = [
+    { year: '2025', holiday: '1/28–2/4，8天（除夕1月28日）', your_dates: '正月十四–十八，节后一周', market: '赴日热，日本刚放宽签证', price_note: '春节期间北京–东京往返：国航最高约¥9,595、南航约¥8,076（2025年1月携程查询）' },
+    { year: '2026', holiday: '2/15–2/23，9天（除夕2月16日）', your_dates: '除夕前5天到前1天，春运中', market: '外交部提醒避免赴日；春运首周中日航班同比−49%，旅客−54%', price_note: '羽田受影响最小（中国航司2–3月减班约12–13%）；大兴–羽田1/28起每周3班、2/23–3/3停飞；部分减班航线反而涨价' },
+    { year: '2027', holiday: '预计2/5–2/13，9天（除夕2月5日；官方通知未发）', your_dates: '正月初六–初十：假期尾段出发、节后周一返回', market: '中日航班仍未恢复到2025年水平；三大航涉日免费退改只覆盖到2026/10/24出行', price_note: '2月整月最低往返见上方；你的具体日期还没有公开报价' },
+  ];
+  const MILESTONES = [
+    { source: 'Kayak', label: '历史上最低价出现在出发前20–25周', start: '2026-08-20', end: '2026-09-24' },
+    { source: '国务院', label: '放假安排往年11月公布，公布后春节票会更紧', start: '2026-11-01', end: '2026-11-20' },
+    { source: 'Jetcost', label: '出发前约8周通常最贵', start: '2026-12-17', end: '2026-12-17' },
+    { source: 'Skyscanner', label: '东京航线约提前40天最便宜（平日统计）', start: '2027-01-02', end: '2027-01-02' },
+    { source: 'Kayak', label: '出发前3–4周能买到低于平均的价（平日统计）', start: '2027-01-14', end: '2027-01-21' },
+  ];
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const fmtPrice = (n) => Number(n).toLocaleString('en-US');
+  const parseDay = (s) => new Date(String(s).slice(0, 10) + 'T00:00:00Z');
+  const fmtDay = (d) => `${d.getUTCMonth() + 1}月${d.getUTCDate()}日`;
+  const fmtMD = (d) => `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
+  const todayUTC = () => { const n = new Date(); return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()); };
+  const seriesOf = (id) => SERIES.find((s) => s.id === id) || SERIES[0];
+  const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const s = (tag, attrs) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+
+  // 距出发天数
+  $('#countdown').textContent = String(Math.max(0, Math.round((DEPART - todayUTC()) / 864e5)));
+
+  // 往年对比
+  const hist = $('#history');
+  HISTORY.forEach((r) => {
+    const tr = document.createElement('tr');
+    ['year', 'holiday', 'your_dates', 'market', 'price_note'].forEach((k) => tr.append(h('td', '', r[k])));
+    hist.append(tr);
+  });
+
+  // 购票时间线
+  function drawTimeline() {
+    const el = $('#timeline');
+    el.replaceChildren();
+    const today = todayUTC();
+    const x0 = Date.UTC(2026, 7, 15), x1 = Date.UTC(2027, 1, 22);
+    const pct = (t) => Math.min(100, Math.max(0, ((t - x0) / (x1 - x0)) * 100));
+    const ft = h('div', 'flag today', '今天 ' + fmtMD(new Date(today)));
+    ft.style.left = `clamp(1.6rem, ${pct(today)}%, calc(100% - 3rem))`;
+    const fg = h('div', 'flag', '出发 2/11');
+    fg.style.left = `clamp(2rem, ${pct(DEPART)}%, calc(100% - 2rem))`;
+    el.append(ft, fg);
+    MILESTONES.forEach((m) => {
+      const a = +parseDay(m.start), b = +parseDay(m.end);
+      const lane = h('div', 'lane');
+      const txt = h('div', 'txt');
+      const when = a === b ? fmtDay(new Date(a)) : `${fmtDay(new Date(a))}–${fmtDay(new Date(b))}`;
+      const tspan = h('span'); tspan.append(h('em', '', `${m.source} · ${when}　`), document.createTextNode(m.label)); txt.append(tspan);
+      const track = h('div', 'track');
+      const bar = h('div', 'bar');
+      bar.style.background = b < today ? 'var(--past)' : 'var(--s1)';
+      const l = pct(a);
+      if (a === b) { bar.style.left = `calc(${l}% - 5px)`; bar.style.width = '10px'; }
+      else { bar.style.left = l + '%'; bar.style.width = Math.max(0, pct(b) - l) + '%'; }
+      track.append(bar);
+      lane.append(txt, track);
+      el.append(lane);
+    });
+    const rt = h('div', 'rule today'); rt.style.left = pct(today) + '%';
+    const rg = h('div', 'rule'); rg.style.left = pct(DEPART) + '%';
+    el.append(rt, rg);
+    const axis = h('div', 'axis');
+    for (let m = new Date(Date.UTC(2026, 8, 1)); +m <= x1; m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))) {
+      const t = h('span', '', (m.getUTCMonth() + 1) + '月');
+      t.style.left = pct(+m) + '%';
+      axis.append(t);
+    }
+    el.append(axis);
+  }
+  drawTimeline();
+
+  // 价格数据
+  let ROWS = [];
+
+  function summarize() {
+    return SERIES.map((sr) => {
+      const rows = ROWS.filter((r) => r.series === sr.id).sort((a, b) => (a.checked < b.checked ? -1 : 1));
+      if (!rows.length) return { ...sr, last: null, low: null };
+      const last = rows[rows.length - 1];
+      const low = rows.reduce((m, r) => (r.price < m.price ? r : m), rows[0]);
+      return { ...sr, last, low, n: rows.length };
+    });
+  }
+
+  function drawTiles(sum) {
+    sum.forEach((x) => {
+      const card = $(`.tile[data-series="${x.id}"]`);
+      if (!card) return;
+      const price = $('[data-f="price"]', card), detail = $('[data-f="detail"]', card), low = $('[data-f="low"]', card);
+      price.replaceChildren();
+      if (!x.last) {
+        price.className = 'big muted';
+        price.textContent = '未记录';
+        detail.textContent = x.id === 'exact' ? '还没查到这组日期的公开报价，用下面的链接查一次。' : '这条线路还没有记录。';
+        low.textContent = '';
+        return;
+      }
+      price.className = 'big';
+      price.append(document.createTextNode('¥' + fmtPrice(x.last.price)));
+      detail.textContent = [x.last.airline, x.last.fare_dates, fmtDay(parseDay(x.last.checked)) + '查'].filter(Boolean).join(' · ');
+      low.textContent = x.n > 1 ? `最低记录 ¥${fmtPrice(x.low.price)}，${fmtDay(parseDay(x.low.checked))}查到` : '第一天记录，之后会显示最低价是哪天查到的';
+    });
+    const have = sum.filter((x) => x.last);
+    if (have.length) {
+      const best = have.reduce((m, x) => (x.last.price < m.last.price ? x : m), have[0]);
+      $('#best-price').textContent = '¥' + fmtPrice(best.last.price);
+      $('#best-name').textContent = best.name;
+    }
+  }
+
+  function drawLegend() {
+    const lg = $('#legend');
+    lg.replaceChildren();
+    SERIES.filter((sr) => ROWS.some((r) => r.series === sr.id)).forEach((sr) => {
+      const it = h('span');
+      const d = h('i', 'dot'); d.style.background = sr.color;
+      it.append(d, document.createTextNode(sr.name));
+      lg.append(it);
+    });
+  }
+
+  function drawTrend() {
+    const el = $('#trend');
+    el.replaceChildren();
+    const rows = ROWS.map((r) => ({ ...r, day: parseDay(r.checked) })).filter((r) => !isNaN(r.price) && !isNaN(r.day));
+    if (!rows.length) { el.append(h('p', 'note', '还没有价格记录。')); return; }
+    const W = Math.max(280, el.clientWidth || 320), H = 230, B = 26;
+    const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': '每日查到的往返最低价走势' });
+    svg.style.display = 'block'; svg.style.overflow = 'visible';
+    el.append(svg);
+    const measure = s('text', { 'font-size': 12, visibility: 'hidden' });
+    svg.append(measure);
+    const widthOf = (t) => { measure.textContent = t; return measure.getComputedTextLength(); };
+
+    const pMin = Math.min(...rows.map((r) => r.price)), pMax = Math.max(...rows.map((r) => r.price));
+    const pad = Math.max(200, (pMax - pMin) * 0.15);
+    const step = niceStep((pMax + pad) - Math.max(0, pMin - pad), 4);
+    const y0 = Math.floor(Math.max(0, pMin - pad) / step) * step, y1 = Math.ceil((pMax + pad) / step) * step;
+    const yTicks = []; for (let v = y0; v <= y1 + 1e-9; v += step) yTicks.push(v);
+    const left = Math.max(...yTicks.map((v) => widthOf('¥' + fmtPrice(v)))) + 10;
+
+    const present = SERIES.filter((sr) => rows.some((r) => r.series === sr.id));
+    const ends = present.map((sr) => {
+      const pts = rows.filter((r) => r.series === sr.id).sort((a, b) => a.day - b.day);
+      return { sr, pts, last: pts[pts.length - 1], label: '¥' + fmtPrice(pts[pts.length - 1].price) };
+    });
+    const right = Math.max(...ends.map((e) => widthOf(e.label))) + 14;
+    measure.remove();
+
+    const dMin = Math.min(...rows.map((r) => +r.day)), dMax = Math.max(...rows.map((r) => +r.day));
+    const span = Math.max(14 * 864e5, dMax - dMin);
+    const t0 = dMin - 864e5, t1 = dMin + span + 864e5;
+    const X = (d) => left + ((+d - t0) / (t1 - t0)) * (W - right - left);
+    const Y = (v) => (H - B) - ((v - y0) / (y1 - y0)) * (H - B - 8);
+
+    yTicks.forEach((v) => {
+      svg.append(s('line', { x1: left, x2: W - right, y1: Y(v), y2: Y(v), stroke: 'var(--grid)', 'stroke-width': 1 }));
+      const t = s('text', { x: left - 8, y: Y(v), dy: '0.32em', 'text-anchor': 'end', 'font-size': 12, fill: 'var(--muted)' });
+      t.textContent = '¥' + fmtPrice(v);
+      svg.append(t);
+    });
+    svg.append(s('line', { x1: left, x2: W - right, y1: H - B, y2: H - B, stroke: 'var(--axis)', 'stroke-width': 1 }));
+
+    const nTicks = Math.max(2, Math.min(6, Math.floor((W - left - right) / 70)));
+    const dayStep = Math.max(1, Math.ceil((t1 - t0) / 864e5 / nTicks));
+    for (let t = t0 + 864e5; t <= t1 - 864e5 / 2; t += dayStep * 864e5) {
+      const tx = s('text', { x: X(t), y: H - 8, 'text-anchor': 'middle', 'font-size': 12, fill: 'var(--muted)' });
+      tx.textContent = fmtMD(new Date(t));
+      svg.append(tx);
+    }
+
+    ends.forEach((e) => {
+      if (e.pts.length > 1) {
+        const d = e.pts.map((p, i) => `${i ? 'L' : 'M'}${X(p.day).toFixed(1)},${Y(p.price).toFixed(1)}`).join('');
+        svg.append(s('path', { d, fill: 'none', stroke: e.sr.color, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+      }
+    });
+    const dots = [];
+    rows.forEach((r) => {
+      const c = s('circle', { cx: X(r.day), cy: Y(r.price), r: 4, fill: seriesOf(r.series).color, stroke: 'var(--panel)', 'stroke-width': 2 });
+      dots.push([r, c]);
+      svg.append(c);
+    });
+    const labels = ends.map((e) => ({ ...e, ly: Y(e.last.price) })).sort((a, b) => a.ly - b.ly);
+    for (let i = 1; i < labels.length; i++) if (labels[i].ly - labels[i - 1].ly < 15) labels[i].ly = labels[i - 1].ly + 15;
+    labels.forEach((e) => {
+      const t = s('text', { x: X(e.last.day) + 8, y: e.ly, dy: '0.32em', 'font-size': 12, fill: 'var(--fg)' });
+      t.textContent = e.label;
+      svg.append(t);
+    });
+
+    const tip = h('div', 'tip'); tip.hidden = true; el.append(tip);
+    const hit = s('rect', { x: left, y: 0, width: Math.max(0, W - right - left), height: H - B, fill: 'transparent' });
+    svg.append(hit);
+    const toSvg = (ev) => { const b = svg.getBoundingClientRect(); return [(ev.clientX - b.left) * (W / b.width), (ev.clientY - b.top) * (H / b.height)]; };
+    const show = (ev) => {
+      const [mx, my] = toSvg(ev);
+      let best = null, bd = Infinity;
+      rows.forEach((r) => { const d = Math.hypot(X(r.day) - mx, Y(r.price) - my); if (d < bd) { bd = d; best = r; } });
+      dots.forEach(([r, c]) => c.setAttribute('r', r === best && bd < 48 ? 6 : 4));
+      if (!best || bd > 48) { tip.hidden = true; return; }
+      tip.replaceChildren();
+      tip.append(h('div', 'd', fmtDay(best.day) + ' 查价'));
+      const line = h('div', 'r'); const sw = h('i', 'dot'); sw.style.background = seriesOf(best.series).color;
+      line.append(sw, document.createTextNode(`${best.series_name}  ¥${fmtPrice(best.price)}`));
+      tip.append(line, h('div', '', [best.airline, best.fare_dates].filter(Boolean).join(' · ')));
+      tip.hidden = false;
+      const b = svg.getBoundingClientRect(), eb = el.getBoundingClientRect();
+      const px = X(best.day) * (b.width / W) + (b.left - eb.left);
+      const py = Y(best.price) * (b.height / H) + (b.top - eb.top);
+      const tw = tip.offsetWidth;
+      tip.style.left = Math.min(Math.max(0, px - tw / 2), Math.max(0, el.clientWidth - tw)) + 'px';
+      tip.style.top = Math.max(0, py - tip.offsetHeight - 12) + 'px';
+    };
+    hit.addEventListener('pointermove', show);
+    hit.addEventListener('pointerdown', show);
+    hit.addEventListener('pointerleave', () => { tip.hidden = true; dots.forEach(([, c]) => c.setAttribute('r', 4)); });
+  }
+
+  function niceStep(range, count) {
+    const raw = range / count, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
+  }
+
+  function drawLog() {
+    const tb = $('#log');
+    tb.replaceChildren();
+    ROWS.slice().sort((a, b) => (a.checked === b.checked ? (a.series < b.series ? -1 : 1) : a.checked < b.checked ? 1 : -1)).forEach((r) => {
+      const tr = document.createElement('tr');
+      [r.checked, r.series_name, fmtPrice(r.price), r.airline || '', r.fare_dates || '', r.direct || ''].forEach((v) => tr.append(h('td', '', v)));
+      tb.append(tr);
+    });
+  }
+
+  async function load() {
+    try {
+      const res = await fetch('prices.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error(res.status);
+      const data = await res.json();
+      ROWS = (Array.isArray(data) ? data : data.rows || [])
+        .filter((r) => r && r.price !== null && r.price !== '' && r.price !== undefined)
+        .map((r) => ({ ...r, price: Number(r.price), checked: String(r.checked).slice(0, 10) }));
+      if (data.updated) {
+        const u = new Date(data.updated);
+        $('#updated').textContent = isNaN(u) ? String(data.updated) : u.toLocaleString('zh-CN', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      }
+      drawTiles(summarize());
+      drawLegend();
+      drawTrend();
+      drawLog();
+    } catch (e) {
+      $('#updated').textContent = '价格数据加载失败，稍后刷新再试';
+      $('#updated').classList.add('err');
+    }
+  }
+
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (ROWS.length) drawTrend(); }, 150); });
+  load();
+})();
+</script>
+</body>
+</html>
