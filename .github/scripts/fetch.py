@@ -117,6 +117,14 @@ def via_fastflights(trip):
     import fast_flights as ff
 
     params = list(inspect.signature(ff.create_query).parameters)
+    if not LOG or "调试" not in LOG[0]:
+        log("调试 create_query:", str(inspect.signature(ff.create_query))[:600])
+        for name in ("create_filter", "get_flights", "ShoppingOptions", "FlightQuery"):
+            obj = getattr(ff, name, None)
+            try:
+                log(f"调试 {name}:", str(inspect.signature(obj))[:600])
+            except Exception as e:  # noqa: BLE001
+                log(f"调试 {name}: 无法读取", repr(e)[:100])
     best = None
     for origin in ORIGINS:
         try:
