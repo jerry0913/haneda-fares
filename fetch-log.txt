@@ -1,17 +1,31 @@
-2026-11-02T00:44+09:00
+2026-11-02T00:48+09:00
 == 2/11 去 · 2/15 回 ==
-fast_flights 版本: ? 可用: ['BrowserArtifacts', 'BrowserCapture', 'BrowserProvider', 'FlightQuery', 'GoogleFlightsDataServiceRequest', 'MulticityLeg', 'MulticityLegChained', 'Passengers', 'PlaywrightBrowserProvider', 'Query', 'ResponseDiagnostics', 'ReturnQuery', 'SearchSession', 'SelectedFlightPage', 'ShoppingOptions', 'browser', 'build_booking_tfs', 'build_booking_url', 'build_selected_search_url', 'capture_browser_artifacts', 'create_filter', 'create_query', 'fetch_flights_html', 'fetcher', 'get_flights', 'get_flights_multicity', 'get_flights_multicity_chained', 'get_return_flights', 'get_selected_flight_page', 'integrations', 'model', 'parser', 'pb', 'querying', 'select_flight', 'session', 'shopping', 'shopping_options', 'types']
-PEK 结果条数: 8 首条: Flights(type='CX', price=4655, airlines=['国泰航空'], flights=[SingleFlight(from_airport=Airport(name='北京首都国际机场', code='PEK'), to_airport=Airport(name='香港國際機場', code='HKG'), departure=SimpleDatetime(date=[2027, 2, 11], time=[3, 25]), arrival=SimpleDatetime(date=[2027, 2, 11], time=[7]), duration=215, plane_type='Airbus A321neo', airline_code='CX', flight_number='395'), SingleFlight(from_airport=Airpor
-PEK 回程条数: 3 首条: Flights(type='CX', price=4655, airlines=['国泰航空'], flights=[SingleFlight(from_airport=Airport(name='东京国际机场', code='HND'), to_airport=Airport(name='香港國際機場', code='HKG'), departure=SimpleDatetime(date=[2027, 2, 15], time=[16]), arrival=SimpleDatetime(date=[2027, 2, 15], time=[20, 15]), duration=315, pl
-PEK 往返总价（选定去程后）: 4655 去程列表最低: 4655
-PKX 结果条数: 5 首条: Flights(type='UO', price=4828, airlines=['香港快运航空'], flights=[SingleFlight(from_airport=Airport(name='北京大兴国际机场', code='PKX'), to_airport=Airport(name='香港國際機場', code='HKG'), departure=SimpleDatetime(date=[2027, 2, 11], time=[2, 35]), arrival=SimpleDatetime(date=[2027, 2, 11], time=[6, 5]), duration=210, plane_type='Airbus A321', airline_code='UO', flight_number='261'), SingleFlight(from_airport=Airp
-PKX 回程条数: 2 首条: Flights(type='UO', price=4828, airlines=['香港快运航空'], flights=[SingleFlight(from_airport=Airport(name='东京国际机场', code='HND'), to_airport=Airport(name='香港國際機場', code='HKG'), departure=SimpleDatetime(date=[2027, 2, 15], time=[23, 55]), arrival=SimpleDatetime(date=[2027, 2, 16], time=[4, 15]), duration=32
-记录: {"id": "2026-11-02T00:44_d11", "checked": "2026-11-02", "checked_at": "2026-11-02T00:44+09:00", "trip": "d11", "trip_label": "2/11 去 · 2/15 回", "price": 4655, "airline": "国泰航空", "airport": "PEK", "stops": null, "price_level": "", "source": "Google Flights"}
+  PEK ¥4655 国泰航空 经HKG 03:25起飞
+  PEK ¥4655 国泰航空 经HKG 10:00起飞
+  PEK ¥4655 国泰航空、日航 经HKG 18:35起飞
+  PEK ¥4655 国泰航空 经HKG 19:30起飞
+  PEK ¥4796 韩亚 经ICN 17:30起飞
+  PEK ¥4906 大韩航空 经ICN 10:40起飞
+  PEK ¥5206 大韩航空 经GMP 11:45起飞
+  PEK ¥13178 国航 直飞 11:45起飞
+  PKX ¥4828 香港快运航空 经HKG 02:35起飞
+  PKX ¥5228 香港快运航空 经HKG 02:35起飞
+  PKX ¥8376 南航 经CAN 21:30起飞
+  PKX ¥17597 国航、日航 经HKG 16:15起飞
+  PKX ¥29325 香港快运航空、国泰航空 经HKG 02:35起飞
+记录: {"id": "2026-11-02T00:48_d11", "checked": "2026-11-02", "checked_at": "2026-11-02T00:48+09:00", "trip": "d11", "trip_label": "2/11 去 · 2/15 回", "price": 4655, "airline": "国泰航空", "airport": "PEK", "stops": 1, "via": "HKG", "depart_time": "03:25", "direct_price": 13178, "direct_airline": "国航", "direct_airport": "PEK", "direct_depart_time": "11:45", "price_level": "", "source": "Google Flights"}
 == 2/10 去 · 2/15 回 ==
-fast_flights 版本: ? 可用: ['BrowserArtifacts', 'BrowserCapture', 'BrowserProvider', 'FlightQuery', 'GoogleFlightsDataServiceRequest', 'MulticityLeg', 'MulticityLegChained', 'Passengers', 'PlaywrightBrowserProvider', 'Query', 'ResponseDiagnostics', 'ReturnQuery', 'SearchSession', 'SelectedFlightPage', 'ShoppingOptions', 'browser', 'build_booking_tfs', 'build_booking_url', 'build_selected_search_url', 'capture_browser_artifacts', 'create_filter', 'create_query', 'fetch_flights_html', 'fetcher', 'get_flights', 'get_flights_multicity', 'get_flights_multicity_chained', 'get_return_flights', 'get_selected_flight_page', 'integrations', 'model', 'parser', 'pb', 'querying', 'select_flight', 'session', 'shopping', 'shopping_options', 'types']
-PEK 结果条数: 7 首条: Flights(type='CX', price=4655, airlines=['国泰航空'], flights=[SingleFlight(from_airport=Airport(name='北京首都国际机场', code='PEK'), to_airport=Airport(name='香港國際機場', code='HKG'), departure=SimpleDatetime(date=[2027, 2, 10], time=[3, 25]), arrival=SimpleDatetime(date=[2027, 2, 10], time=[7]), duration=215, plane_type='Airbus A321neo', airline_code='CX', flight_number='395'), SingleFlight(from_airport=Airpor
-PEK 回程条数: 4 首条: Flights(type='CX', price=4655, airlines=['国泰航空'], flights=[SingleFlight(from_airport=Airport(name='东京国际机场', code='HND'), to_airport=Airport(name='香港國際機場', code='HKG'), departure=SimpleDatetime(date=[2027, 2, 15], time=[16]), arrival=SimpleDatetime(date=[2027, 2, 15], time=[20, 15]), duration=315, pl
-PEK 往返总价（选定去程后）: 4655 去程列表最低: 4655
-PKX 结果条数: 6 首条: Flights(type='UO', price=5013, airlines=['香港快运航空'], flights=[SingleFlight(from_airport=Airport(name='北京大兴国际机场', code='PKX'), to_airport=Airport(name='香港國際機場', code='HKG'), departure=SimpleDatetime(date=[2027, 2, 10], time=[2, 35]), arrival=SimpleDatetime(date=[2027, 2, 10], time=[6, 5]), duration=210, plane_type='Airbus A321', airline_code='UO', flight_number='261'), SingleFlight(from_airport=Airp
-PKX 回程条数: 2 首条: Flights(type='UO', price=5013, airlines=['香港快运航空'], flights=[SingleFlight(from_airport=Airport(name='东京国际机场', code='HND'), to_airport=Airport(name='香港國際機場', code='HKG'), departure=SimpleDatetime(date=[2027, 2, 15], time=[23, 55]), arrival=SimpleDatetime(date=[2027, 2, 16], time=[4, 15]), duration=32
-记录: {"id": "2026-11-02T00:44_d10", "checked": "2026-11-02", "checked_at": "2026-11-02T00:44+09:00", "trip": "d10", "trip_label": "2/10 去 · 2/15 回", "price": 4655, "airline": "国泰航空", "airport": "PEK", "stops": null, "price_level": "", "source": "Google Flights"}
+  PEK ¥4655 国泰航空 经HKG 03:25起飞
+  PEK ¥4655 国泰航空 经HKG 10:00起飞
+  PEK ¥4655 国泰航空 经HKG 19:30起飞
+  PEK ¥4796 韩亚 经ICN 17:30起飞
+  PEK ¥4906 大韩航空 经ICN 14:15起飞
+  PEK ¥5626 大韩航空 经GMP 11:45起飞
+  PEK ¥13178 国航 直飞 11:45起飞
+  PKX ¥5013 香港快运航空 经HKG 02:35起飞
+  PKX ¥5242 香港快运航空 经HKG 02:35起飞
+  PKX ¥5455 香港快运航空 经HKG 02:35起飞
+  PKX ¥8376 南航 经CAN 21:30起飞
+  PKX ¥10755 南航、全日空 经ICN 19:15起飞
+  PKX ¥12745 国航、日航 经HKG 16:15起飞
+记录: {"id": "2026-11-02T00:48_d10", "checked": "2026-11-02", "checked_at": "2026-11-02T00:48+09:00", "trip": "d10", "trip_label": "2/10 去 · 2/15 回", "price": 4655, "airline": "国泰航空", "airport": "PEK", "stops": 1, "via": "HKG", "depart_time": "03:25", "direct_price": 13178, "direct_airline": "国航", "direct_airport": "PEK", "direct_depart_time": "11:45", "price_level": "", "source": "Google Flights"}
