@@ -112,26 +112,15 @@ def ff_option(f, origin):
 
 
 def via_fastflights(trip):
-    import inspect
-
     import fast_flights as ff
 
-    params = list(inspect.signature(ff.create_query).parameters)
-    if not LOG or "调试" not in LOG[0]:
-        log("调试 create_query:", str(inspect.signature(ff.create_query))[:600])
-        for name in ("create_filter", "get_flights", "ShoppingOptions", "FlightQuery"):
-            obj = getattr(ff, name, None)
-            try:
-                log(f"调试 {name}:", str(inspect.signature(obj))[:600])
-            except Exception as e:  # noqa: BLE001
-                log(f"调试 {name}: 无法读取", repr(e)[:100])
     best = None
     for origin in ORIGINS:
         try:
             kw = dict(
                 flights=[
-                    ff.FlightQuery(date=trip["out"], from_airport=origin, to_airport=DEST),
-                    ff.FlightQuery(date=trip["ret"], from_airport=DEST, to_airport=origin),
+                    ff.FlightQuery(date=trip["out"], from_airport=origin, to_airport=DEST, max_stops=0),
+                    ff.FlightQuery(date=trip["ret"], from_airport=DEST, to_airport=origin, max_stops=0),
                 ],
                 trip="round-trip",
                 seat="economy",
@@ -139,13 +128,11 @@ def via_fastflights(trip):
                 language="zh-CN",
                 currency="CNY",
             )
-            if "max_stops" in params:
-                kw["max_stops"] = 0
             q = ff.create_query(**kw)
             outs = [(f, ff_option(f, origin)) for f in ff.get_flights(q)]
             directs = sorted([(f, o) for f, o in outs if o["stops"] == 0 and o["price"]], key=lambda x: x[1]["price"])
             log(f"  {origin} 直飞去程 {len(directs)} 个：" + "；".join(f"{o['airline']} {o['depart_time']} ¥{o['price']}" for _, o in directs))
-            for f, o in directs[:5]:
+            for f, o in directs[:8]:
                 try:
                     rets = [ff_option(r, origin) for r in ff.get_return_flights(ff.select_flight(q, f))]
                     rd = sorted([r for r in rets if r["stops"] == 0 and r["price"]], key=lambda r: r["price"])
