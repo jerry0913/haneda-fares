@@ -96,15 +96,17 @@ def ff_option(f, origin):
         airlines = [airlines]
     legs = getattr(f, "flights", None) or []
     dep = ""
+    code = origin
     if legs:
         t = getattr(getattr(legs[0], "departure", None), "time", None) or []
         if t:
             dep = f"{int(t[0]):02d}:{int(t[1]) if len(t) > 1 else 0:02d}"
+        code = getattr(getattr(legs[0], "from_airport", None), "code", None) or origin
     via = [getattr(getattr(l, "to_airport", None), "code", "") for l in legs[:-1]]
     return {
         "price": price,
         "airline": "、".join(dict.fromkeys(str(a) for a in airlines)),
-        "airport": origin,
+        "airport": code,
         "stops": max(0, len(legs) - 1) if legs else None,
         "via": "、".join(v for v in via if v),
         "depart_time": dep,
@@ -114,58 +116,51 @@ def ff_option(f, origin):
 def via_fastflights(trip):
     import fast_flights as ff
 
-    try:
-        import typing
-        from fast_flights import shopping as _sh
-        log("调试 排序选项:", typing.get_args(getattr(_sh, "ShoppingResultSort", None)), typing.get_args(getattr(_sh, "ShoppingRankingMode", None)))
-    except Exception as e:  # noqa: BLE001
-        log("调试 排序选项读取失败", repr(e)[:200])
-    best = None
-    for origin in ORIGINS:
+    def make_query(origin, nonstop):
+        extra = {"max_stops": 0} if nonstop else {}
+        return ff.create_query(
+            flights=[
+                ff.FlightQuery(date=trip["out"], from_airport=origin, to_airport=DEST, **extra),
+                ff.FlightQuery(date=trip["ret"], from_airport=DEST, to_airport=origin, **extra),
+            ],
+            trip="round-trip",
+            seat="economy",
+            passengers=ff.Passengers(adults=1),
+            language="zh-CN",
+            currency="CNY",
+        )
+
+    # 两种搜法合起来：只搜直飞 + 不加筛选（Google 两边都可能漏航班），再加上“北京”城市代码
+    variants = [("PEK", True), ("PKX", True), ("BJS", True), ("PEK", False), ("PKX", False)]
+    outbound = {}
+    for origin, nonstop in variants:
         try:
-            kw = dict(
-                flights=[
-                    ff.FlightQuery(date=trip["out"], from_airport=origin, to_airport=DEST, max_stops=0),
-                    ff.FlightQuery(date=trip["ret"], from_airport=DEST, to_airport=origin, max_stops=0),
-                ],
-                trip="round-trip",
-                seat="economy",
-                passengers=ff.Passengers(adults=1),
-                language="zh-CN",
-                currency="CNY",
-            )
-            q = ff.create_query(**kw)
+            q = make_query(origin, nonstop)
             raw = list(ff.get_flights(q))
-            log(f"  {origin} 原始结果 {len(raw)} 条")
-            for f in raw[:12]:
-                o = ff_option(f, origin)
-                log(f"    原始：{o['airline']} {o['depart_time']} ¥{o['price']} 段数{len(getattr(f, 'flights', []) or [])}")
-            outs = [(f, ff_option(f, origin)) for f in raw]
-            directs = sorted([(f, o) for f, o in outs if o["stops"] == 0 and o["price"]], key=lambda x: x[1]["price"])
-            log(f"  {origin} 直飞去程 {len(directs)} 个：" + "；".join(f"{o['airline']} {o['depart_time']} ¥{o['price']}" for _, o in directs))
-            for f, o in directs[:8]:
-                try:
-                    rets = [ff_option(r, origin) for r in ff.get_return_flights(ff.select_flight(q, f))]
-                    rd = sorted([r for r in rets if r["stops"] == 0 and r["price"]], key=lambda r: r["price"])
-                    log(f"    {o['airline']} {o['depart_time']} 去 → 直飞回程：" + ("；".join(f"{r['airline']} {r['depart_time']} 往返¥{r['price']}" for r in rd) or "没有"))
-                    if not rd:
-                        continue
-                    r = rd[0]
-                    cand = {
-                        "price": r["price"],
-                        "airline": o["airline"],
-                        "airport": origin,
-                        "depart_time": o["depart_time"],
-                        "ret_airline": r["airline"],
-                        "ret_time": r["depart_time"],
-                    }
-                    if best is None or cand["price"] < best["price"]:
-                        best = cand
-                except Exception as e:  # noqa: BLE001
-                    log("    选回程出错:", repr(e)[:300])
+            got = [(f, ff_option(f, origin)) for f in raw]
+            d = [(f, o) for f, o in got if o["stops"] == 0 and o["price"]]
+            log(f"  {origin}{'（只搜直飞）' if nonstop else '（不筛选）'} 共 {len(raw)} 条，直飞 {len(d)} 条：" + "；".join(f"{o['airline']} {o['airport']} {o['depart_time']} ¥{o['price']}" for _, o in d))
+            for f, o in d:
+                k = (o["airport"], o["airline"], o["depart_time"])
+                if k not in outbound or o["price"] < outbound[k][2]["price"]:
+                    outbound[k] = (q, f, o)
         except Exception as e:  # noqa: BLE001
-            log(origin, "faster-flights 出错:", repr(e)[:400])
-            log(traceback.format_exc()[-600:])
+            log(f"  {origin} 出错:", repr(e)[:300])
+    best = None
+    for q, f, o in sorted(outbound.values(), key=lambda x: x[2]["price"])[:10]:
+        try:
+            rets = [ff_option(r, o["airport"]) for r in ff.get_return_flights(ff.select_flight(q, f))]
+            rd = sorted([r for r in rets if r["stops"] == 0 and r["price"]], key=lambda r: r["price"])
+            log(f"    {o['airline']} {o['airport']} {o['depart_time']} 去 → 直飞回程：" + ("；".join(f"{r['airline']} {r['depart_time']} 往返¥{r['price']}" for r in rd) or "没有"))
+            if not rd:
+                continue
+            r = rd[0]
+            cand = {"price": r["price"], "airline": o["airline"], "airport": o["airport"], "depart_time": o["depart_time"],
+                    "ret_airline": r["airline"], "ret_time": r["depart_time"]}
+            if best is None or cand["price"] < best["price"]:
+                best = cand
+        except Exception as e:  # noqa: BLE001
+            log("    选回程出错:", repr(e)[:300])
     if not best:
         raise RuntimeError("没找到去回都直飞的往返价")
     best.update({"stops": 0, "nonstop": True, "price_level": "", "source": "Google Flights"})
