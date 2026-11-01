@@ -114,6 +114,12 @@ def ff_option(f, origin):
 def via_fastflights(trip):
     import fast_flights as ff
 
+    try:
+        import typing
+        from fast_flights import shopping as _sh
+        log("调试 排序选项:", typing.get_args(getattr(_sh, "ShoppingResultSort", None)), typing.get_args(getattr(_sh, "ShoppingRankingMode", None)))
+    except Exception as e:  # noqa: BLE001
+        log("调试 排序选项读取失败", repr(e)[:200])
     best = None
     for origin in ORIGINS:
         try:
@@ -129,7 +135,12 @@ def via_fastflights(trip):
                 currency="CNY",
             )
             q = ff.create_query(**kw)
-            outs = [(f, ff_option(f, origin)) for f in ff.get_flights(q)]
+            raw = list(ff.get_flights(q))
+            log(f"  {origin} 原始结果 {len(raw)} 条")
+            for f in raw[:12]:
+                o = ff_option(f, origin)
+                log(f"    原始：{o['airline']} {o['depart_time']} ¥{o['price']} 段数{len(getattr(f, 'flights', []) or [])}")
+            outs = [(f, ff_option(f, origin)) for f in raw]
             directs = sorted([(f, o) for f, o in outs if o["stops"] == 0 and o["price"]], key=lambda x: x[1]["price"])
             log(f"  {origin} 直飞去程 {len(directs)} 个：" + "；".join(f"{o['airline']} {o['depart_time']} ¥{o['price']}" for _, o in directs))
             for f, o in directs[:8]:
