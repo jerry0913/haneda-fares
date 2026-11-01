@@ -1,0 +1,27 @@
+name: 降价微信提醒
+
+on:
+  push:
+    branches: [main]
+    paths: [prices.json]
+  workflow_dispatch:
+    inputs:
+      test:
+        description: 发一条测试消息到微信
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 检查降价并推送到微信
+        run: python3 .github/scripts/notify.py
+        env:
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.test && 'test' || 'auto' }}

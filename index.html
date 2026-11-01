@@ -2,196 +2,403 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<meta name="description" content="2027年2月11日去、2月15日回，北京往返东京羽田机票每日价格记录">
-<title>北京⇄羽田 春节机票监控</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a78d6'/%3E%3Cpath d='M6 19l20-8-3 9-6-2-3 5-1-6z' fill='white'/%3E%3C/svg%3E">
+<meta name="description" content="2027年2月11日去、2月15日回，北京往返东京羽田机票每日价格">
+<meta name="theme-color" content="#141032">
+<title>北京⇄羽田 春节机票</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23241c5c'/%3E%3Cstop offset='1' stop-color='%23f2845c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M6 19l20-8-3 9-6-2-3 5-1-6z' fill='%23ffd27a'/%3E%3C/svg%3E">
 <style>
 :root {
   color-scheme: light;
-  --bg: #f4f3ef;
-  --panel: #fcfcfb;
-  --fg: #1d1d1b;
-  --muted: #6b6a65;
-  --line: #e2e0d8;
-  --grid: #ebe9e3;
-  --axis: #c9c7bf;
+  --page: #f1f0f7;
+  --surface: #ffffff;
+  --ink: #1c1840;
+  --ink-2: #5f5b7d;
+  --line: #e1deec;
+  --grid: #eceaf3;
+  --night: #141032;
+  --night-2: #221c52;
+  --flap: #2b2563;
+  --seam: #0c0a22;
+  --gold: #ffc65a;
+  --coral: #f2845c;
+  --red: #d7262f;
+  --moon: #f4ecff;
+  --night-ink: #f3f1ff;
+  --night-ink-2: #aaa4d6;
   --s1: #2a78d6;
   --s2: #eb6834;
   --s3: #1baf7a;
-  --past: #cfccc4;
-  --warn: #9a5b00;
-  --radius: 10px;
+  --past: #cfcbe0;
   --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", "Segoe UI", sans-serif;
-  --serif: Georgia, "Songti SC", "Noto Serif CJK SC", "Times New Roman", serif;
+  --num: "DIN Alternate", Bahnschrift, "Roboto Condensed", "Helvetica Neue", Arial, sans-serif;
+  --shadow: 0 1px 2px rgba(28,24,64,.05), 0 12px 32px -18px rgba(40,30,110,.35);
 }
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --bg: #121211;
-    --panel: #1a1a19;
-    --fg: #f0efec;
-    --muted: #c3c2b7;
-    --line: #33322e;
-    --grid: #272724;
-    --axis: #4a4943;
+    --page: #0c0a1d;
+    --surface: #171439;
+    --ink: #efedf9;
+    --ink-2: #aaa6c9;
+    --line: #2c2858;
+    --grid: #221f48;
     --s1: #3987e5;
     --s2: #d95926;
     --s3: #199e70;
-    --past: #4d4b45;
-    --warn: #e0a24a;
+    --past: #3b3769;
+    --shadow: 0 0 0 1px #221f48;
   }
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.65; }
 a { color: inherit; }
-.page { max-width: 60rem; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 16px; }
-header { display: grid; gap: 6px; padding: 4px 2px 6px; }
-h1 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(1.45rem, 5vw, 2rem); line-height: 1.25; letter-spacing: .01em; }
-.take { margin: 0; color: var(--muted); }
-.take b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
-.updated { margin: 0; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: 12px; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
-.tile { padding: 14px 16px; gap: 4px; }
-.label { margin: 0; font-size: 12.5px; color: var(--muted); }
-.big { margin: 0; font-family: var(--serif); font-size: 1.9rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
-.big .unit { font-family: var(--sans); font-size: 14px; color: var(--muted); margin-left: 3px; }
-.big.muted { color: var(--muted); font-size: 1.5rem; }
-.note { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.55; font-variant-numeric: tabular-nums; }
-h2 { margin: 0; font-size: 1.05rem; font-weight: 600; }
-.chart { position: relative; min-height: 250px; }
-.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); }
+:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; border-radius: 6px; }
+.page { max-width: 46rem; margin: 0 auto; padding: max(12px, env(safe-area-inset-top)) 12px 56px; display: grid; gap: 22px; }
+h2 { margin: 0; font-size: 1.15rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+h2 .ic { width: 28px; height: 28px; border-radius: 9px; display: inline-grid; place-items: center; flex: none; }
+h2 .ic svg { width: 16px; height: 16px; }
+.note { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+
+/* ---------- 夜空 + 看板 ---------- */
+.trip { border-radius: 24px; overflow: hidden; background: var(--night); color: var(--night-ink); box-shadow: 0 24px 50px -28px rgba(20,16,50,.75); }
+.sky { position: relative; height: 300px; }
+.sky > svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.sky-text { position: relative; z-index: 2; padding: 22px 22px 0; max-width: calc(100% - 96px); }
+.sky h1 { margin: 0; white-space: nowrap; font-size: clamp(1.45rem, 6.2vw, 2.25rem); font-weight: 700; line-height: 1.15; letter-spacing: .03em; text-shadow: 0 2px 18px rgba(10,6,40,.55); }
+.sky p { margin: 6px 0 0; font-size: 13.5px; color: #d9d3ff; text-shadow: 0 1px 10px rgba(10,6,40,.6); }
+.lanterns { position: absolute; top: 0; right: 14px; z-index: 2; display: flex; gap: 10px; }
+.lantern { width: 34px; transform-origin: 50% 0; }
+.lantern svg { width: 100%; display: block; }
+.lantern:nth-child(2) { margin-top: 14px; width: 28px; }
+@media (prefers-reduced-motion: no-preference) {
+  .lantern { animation: sway 4.5s ease-in-out infinite alternate; }
+  .lantern:nth-child(2) { animation-duration: 5.3s; animation-delay: -1.2s; }
+  .star.tw { animation: twinkle 3.2s ease-in-out infinite alternate; }
+}
+@keyframes sway { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+@keyframes twinkle { from { opacity: .25; } to { opacity: 1; } }
+@media (min-width: 34rem) { .sky { height: 340px; } .sky-text { padding: 28px 30px 0; } }
+
+.board { padding: 4px 18px 16px; display: grid; gap: 16px; background: linear-gradient(180deg, #120e2c 0%, var(--night) 40%); }
+.countdown { display: flex; align-items: center; gap: 12px; padding-top: 6px; }
+.cd-text { display: grid; line-height: 1.3; font-size: 13px; color: var(--night-ink-2); }
+.cd-text b { font-size: 15px; color: var(--night-ink); font-weight: 600; }
+.flaps { display: inline-flex; gap: 3px; }
+.flap { position: relative; display: inline-grid; place-items: center; width: 1.3rem; height: 1.85rem; background: linear-gradient(180deg, #332c72 0 50%, var(--flap) 50% 100%); border-radius: 4px; font-family: var(--num); font-weight: 700; font-size: 1.15rem; color: var(--gold); line-height: 1; font-variant-numeric: tabular-nums; overflow: hidden; box-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 2px 4px rgba(0,0,0,.35); }
+.flap::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--seam); }
+.flap.punct { width: .6rem; background: transparent; box-shadow: none; }
+.flap.punct::after { display: none; }
+.flap.dim { color: #5d5797; }
+.flap.tick { animation: tick 90ms linear; }
+@keyframes tick { from { transform: scaleY(.55); filter: brightness(.7); } to { transform: none; filter: none; } }
+.countdown .flap { width: 2.6rem; height: 3.5rem; font-size: 2.5rem; border-radius: 7px; text-shadow: 0 0 18px rgba(255,198,90,.35); }
+.rows { display: grid; border-top: 1px solid var(--night-2); }
+.row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 12px; padding: 14px 0; border-bottom: 1px solid var(--night-2); }
+.route { display: flex; align-items: center; gap: 6px; }
+.route svg { width: 18px; height: 18px; color: var(--night-ink-2); flex: none; }
+.price { display: flex; align-items: center; gap: 4px; justify-self: end; }
+.yen { color: var(--gold); font-family: var(--num); font-weight: 700; font-size: 1.05rem; }
+.row-note { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--night-ink-2); line-height: 1.55; }
+.row-note b { color: var(--night-ink); font-weight: 500; margin-right: 6px; }
+.row.mine .route .flap { color: #8ff0c9; }
+.board-foot { margin: 0; font-size: 12.5px; color: var(--night-ink-2); font-variant-numeric: tabular-nums; }
+.board-foot.err { color: var(--gold); }
+@media (min-width: 30rem) {
+  .board { padding: 6px 30px 20px; }
+  .flap { width: 1.55rem; height: 2.15rem; font-size: 1.35rem; }
+  .countdown .flap { width: 3.1rem; height: 4.1rem; font-size: 3rem; }
+}
+
+/* ---------- 结论 ---------- */
+.verdict { display: grid; gap: 8px; padding: 6px 8px 0; }
+.verdict .lead { margin: 0; font-size: clamp(1.25rem, 4.8vw, 1.55rem); line-height: 1.45; font-weight: 700; color: var(--ink); }
+.verdict .lead strong { font-family: var(--num); font-size: 1.2em; font-variant-numeric: tabular-nums; background: linear-gradient(90deg, var(--red), var(--coral)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.verdict p.more { margin: 0; color: var(--ink-2); }
+
+/* ---------- 通用卡片 ---------- */
+.panel { background: var(--surface); border-radius: 18px; padding: 20px 18px; display: grid; gap: 12px; min-width: 0; box-shadow: var(--shadow); }
+.ic-blue { background: rgba(42,120,214,.12); color: var(--s1); }
+.ic-coral { background: rgba(242,132,92,.15); color: var(--coral); }
+.ic-red { background: rgba(215,38,47,.12); color: var(--red); }
+.ic-violet { background: rgba(98,80,200,.14); color: #6a56d6; }
+@media (prefers-color-scheme: dark) { .ic-violet { color: #a597ff; } }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--ink-2); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
-.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.14); padding: 6px 10px; font-size: 12.5px; line-height: 1.5; white-space: nowrap; z-index: 2; }
-.tip .d { color: var(--muted); }
+.chart { position: relative; min-height: 236px; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 28px -10px rgba(28,20,80,.4); padding: 7px 11px; font-size: 12.5px; line-height: 1.5; white-space: nowrap; z-index: 2; }
+.tip .d { color: var(--ink-2); }
 .tip .r { display: flex; align-items: center; gap: 6px; }
 .tip .dot { width: 8px; height: 8px; }
-.links { display: flex; flex-wrap: wrap; gap: 8px; }
-.links a { text-decoration: none; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); font-size: 14px; }
-.tl { position: relative; padding-top: 26px; }
-.tl .lane { display: grid; gap: 4px; padding-block: 6px; }
-.tl .txt { font-size: 12.5px; line-height: 1.45; position: relative; z-index: 1; }
-.tl .txt span { background: var(--panel); box-decoration-break: clone; -webkit-box-decoration-break: clone; padding-right: 2px; }
-.tl .txt em { font-style: normal; color: var(--muted); }
-.tl .track { position: relative; z-index: 1; height: 10px; background: var(--grid); border-radius: 5px; }
-.tl .bar { position: absolute; top: 0; height: 10px; border-radius: 5px; min-width: 10px; }
-.tl .rule { position: absolute; top: 22px; bottom: 26px; border-left: 2px solid var(--fg); z-index: 0; }
-.tl .rule.today { border-left: 2px dashed var(--muted); }
-.tl .flag { position: absolute; top: 0; transform: translateX(-50%); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.tl .flag.today { color: var(--muted); }
-.tl .axis { position: relative; height: 22px; margin-top: 4px; border-top: 1px solid var(--axis); }
-.tl .axis span { position: absolute; top: 4px; transform: translateX(-50%); font-size: 12px; color: var(--muted); }
-ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 8px; }
-.tablebox { overflow: auto; max-height: 28rem; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
-th, td { text-align: left; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.5; }
-th { position: sticky; top: 0; background: var(--panel); color: var(--muted); font-weight: 500; white-space: nowrap; }
-.log td { white-space: nowrap; }
-.hist td:first-child { font-family: var(--serif); font-size: 1.1rem; }
-@media (max-width: 40rem) {
-  .hist thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .hist tr { display: block; padding-block: 10px; border-bottom: 1px solid var(--line); }
-  .hist td { display: block; border: 0; padding: 2px 0; }
-  .hist td::before { display: block; color: var(--muted); font-size: 12px; }
-  .hist td:nth-child(2)::before { content: "当年春节假期"; }
-  .hist td:nth-child(3)::before { content: "2月11–15日在当年是"; }
-  .hist td:nth-child(4)::before { content: "行情"; }
-  .hist td:nth-child(5)::before { content: "价格线索"; }
+
+/* ---------- 登机牌 ---------- */
+.ticket { --notch: 12px; display: grid; background: var(--surface); border-radius: 18px; position: relative; overflow: hidden; box-shadow: var(--shadow); }
+.t-head { background: linear-gradient(100deg, #241c5c 0%, #5a3b8c 55%, var(--coral) 100%); color: #fff; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.t-head h2 { font-size: 1.05rem; }
+.t-head svg { width: 22px; height: 22px; opacity: .9; }
+.t-main { padding: 16px 18px; }
+.t-grid { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+.t-grid div { min-width: 0; }
+.t-grid dt { font-size: 12px; color: var(--ink-2); }
+.t-grid dd { margin: 0; font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+.t-grid dd b { display: block; font-family: var(--num); font-size: 1.55rem; color: var(--ink); font-weight: 700; line-height: 1.2; letter-spacing: .02em; }
+.t-stub { position: relative; padding: 16px 18px 18px; display: grid; gap: 8px; border-top: 2px dashed var(--line); }
+.t-stub::before, .t-stub::after { content: ""; position: absolute; top: calc(var(--notch) * -1 - 1px); width: calc(var(--notch) * 2); height: calc(var(--notch) * 2); border-radius: 50%; background: var(--page); }
+.t-stub::before { left: calc(var(--notch) * -1); }
+.t-stub::after { right: calc(var(--notch) * -1); }
+.t-stub p { margin: 0; font-size: 13px; color: var(--ink-2); }
+.go { display: flex; align-items: center; justify-content: space-between; gap: 10px; text-decoration: none; padding: 12px 14px; border-radius: 12px; background: var(--grid); font-size: 15px; font-weight: 600; }
+.go span { font-size: 12.5px; color: var(--ink-2); font-weight: 400; }
+.go.primary { background: linear-gradient(100deg, var(--red), var(--coral)); color: #fff; }
+.go.primary span { color: rgba(255,255,255,.85); }
+@media (min-width: 36rem) {
+  .ticket { grid-template-columns: 1fr 15rem; }
+  .t-head { grid-column: 1 / -1; }
+  .t-stub { border-top: 0; border-left: 2px dashed var(--line); align-content: start; }
+  .t-stub::before, .t-stub::after { left: calc(var(--notch) * -1 - 1px); right: auto; }
+  .t-stub::before { top: calc(var(--notch) * -1); background: var(--surface); }
+  .t-stub::after { top: auto; bottom: calc(var(--notch) * -1); }
 }
-.err { color: var(--warn); }
-footer { font-size: 12px; color: var(--muted); display: grid; gap: 6px; padding: 4px 2px; }
+
+/* ---------- 时间线 ---------- */
+.tl { position: relative; padding-top: 26px; }
+.tl .lane { display: grid; gap: 5px; padding-block: 7px; }
+.tl .txt { font-size: 13px; line-height: 1.45; position: relative; z-index: 1; }
+.tl .txt span { background: var(--surface); box-decoration-break: clone; -webkit-box-decoration-break: clone; padding-right: 3px; }
+.tl .txt em { font-style: normal; color: var(--ink-2); margin-right: 6px; }
+.tl .track { position: relative; z-index: 1; height: 8px; background: var(--grid); border-radius: 4px; }
+.tl .bar { position: absolute; top: 0; height: 8px; border-radius: 4px; min-width: 8px; }
+.tl .rule { position: absolute; top: 22px; bottom: 26px; border-left: 2px solid var(--red); z-index: 0; }
+.tl .rule.today { border-left: 2px dashed var(--ink-2); }
+.tl .flag { position: absolute; top: 0; transform: translateX(-50%); font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--red); }
+.tl .flag.today { color: var(--ink-2); font-weight: 400; }
+.tl .axis { position: relative; height: 22px; margin-top: 6px; border-top: 1px solid var(--line); }
+.tl .axis span { position: absolute; top: 4px; transform: translateX(-50%); font-size: 12px; color: var(--ink-2); }
+
+/* ---------- 建议 ---------- */
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 1.9rem 1fr; gap: 10px; align-items: start; }
+.steps li::before { content: counter(s); width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; font-family: var(--num); font-weight: 700; font-size: 1rem; color: #fff; background: linear-gradient(135deg, #3d2f8f, var(--coral)); }
+
+/* ---------- 往年 ---------- */
+.years { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 12px; }
+.year { background: var(--surface); border-radius: 18px; padding: 18px; display: grid; gap: 8px; align-content: start; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+.year::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--past); }
+.year.now::before { background: linear-gradient(90deg, var(--red), var(--coral), var(--gold)); }
+.year h3 { margin: 0; display: flex; align-items: baseline; gap: 8px; font-family: var(--num); font-size: 2.1rem; font-weight: 700; line-height: 1; }
+.year.now h3 { color: var(--red); }
+.year h3 small { font-family: var(--sans); font-size: 12px; font-weight: 600; color: #fff; background: var(--red); padding: 1px 8px; border-radius: 999px; transform: translateY(-4px); }
+.year dl { margin: 0; display: grid; gap: 6px; }
+.year dt { font-size: 12px; color: var(--ink-2); }
+.year dd { margin: 0 0 4px; font-size: 13.5px; line-height: 1.55; }
+
+/* ---------- 记录 ---------- */
+.log { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.log th { text-align: left; font-weight: 500; font-size: 12px; color: var(--ink-2); padding: 0 8px 8px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.log td { padding: 10px 8px 10px 0; border-bottom: 1px solid var(--grid); vertical-align: top; }
+.log td.p { font-family: var(--num); font-weight: 700; font-size: 1.08rem; text-align: right; white-space: nowrap; padding-right: 0; }
+.log th.p { text-align: right; padding-right: 0; }
+.log td .sub { display: block; font-size: 12px; color: var(--ink-2); }
+.log .down { color: var(--s3); font-size: 12px; margin-left: 4px; }
+.log .up { color: var(--ink-2); font-size: 12px; margin-left: 4px; }
+.logbox { max-height: 30rem; overflow: auto; }
+
+footer { font-size: 12.5px; color: var(--ink-2); display: grid; gap: 6px; padding: 0 8px; }
 footer ul { margin: 0; padding-left: 1.1rem; }
+
+@media (prefers-reduced-motion: reduce) { .flap.tick { animation: none; } }
 </style>
 </head>
 <body>
 <main class="page">
-  <header>
-    <h1>北京 ⇄ 东京羽田 · 2月11日去 2月15日回</h1>
-    <p class="take">目前查到的2月往返最低 <b id="best-price">—</b>（<span id="best-name">—</span>）。你的日期是春节假期尾段（正月初六）出发、节后周一（初十）返回，避开了出境和返程两个高峰；但春节期间的便宜舱位往往先卖完，别按平日“提前40天最便宜”的规律干等。</p>
-    <p class="updated">最后更新：<span id="updated">—</span> · 每天早上自动查一次</p>
-  </header>
 
-  <section class="tiles" aria-label="关键数字">
-    <div class="card tile">
-      <p class="label">距出发</p>
-      <p class="big"><span id="countdown">—</span><span class="unit">天</span></p>
-      <p class="note">2027年2月11日 周四 · 正月初六</p>
+  <section class="trip" aria-label="今日票价">
+    <div class="sky">
+      <svg class="scene" viewBox="0 0 800 440" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#120d36"/>
+            <stop offset=".42" stop-color="#2e2470"/>
+            <stop offset=".68" stop-color="#7a3f8f"/>
+            <stop offset=".84" stop-color="#e2707a"/>
+            <stop offset=".95" stop-color="#ffb07a"/>
+            <stop offset="1" stop-color="#ffd38f"/>
+          </linearGradient>
+          <radialGradient id="glow" cx=".5" cy="1" r=".6">
+            <stop offset="0" stop-color="#ffd38f" stop-opacity=".75"/>
+            <stop offset="1" stop-color="#ffd38f" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2a1d4f"/>
+            <stop offset="1" stop-color="#120e2c"/>
+          </linearGradient>
+          <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#ffffff" stop-opacity=".15"/>
+            <stop offset=".5" stop-color="#ffffff" stop-opacity=".7"/>
+            <stop offset="1" stop-color="#ffffff" stop-opacity=".15"/>
+          </linearGradient>
+        </defs>
+        <rect width="800" height="440" fill="url(#skyg)"/>
+        <ellipse cx="400" cy="400" rx="420" ry="150" fill="url(#glow)"/>
+        <g id="stars" fill="#fff"></g>
+        <!-- 云 -->
+        <g fill="#ffd8e6" opacity=".18">
+          <ellipse cx="300" cy="300" rx="90" ry="9"/>
+          <ellipse cx="540" cy="282" rx="70" ry="7"/>
+          <ellipse cx="460" cy="318" rx="110" ry="8"/>
+        </g>
+        <!-- 航线 -->
+        <path id="arc" d="M262 336 Q 400 150 552 318" fill="none" stroke="url(#trail)" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round"/>
+        <g id="plane">
+          <path d="M14 0 L-6 -3 L-12 -11 L-15 -11 L-11 -2.5 L-17 -2 L-20 -6 L-22 -6 L-20 0 L-22 6 L-20 6 L-17 2 L-11 2.5 L-15 11 L-12 11 L-6 3 Z" fill="#fff8e6"/>
+          <animateMotion id="fly" dur="9s" repeatCount="indefinite" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".45 0 .55 1">
+            <mpath href="#arc"/>
+          </animateMotion>
+        </g>
+        <!-- 北京：祈年殿 -->
+        <g fill="#1d1440">
+          <rect x="160" y="352" width="190" height="20"/>
+          <rect x="208" y="344" width="104" height="10"/>
+          <rect x="222" y="336" width="76" height="9"/>
+          <path d="M260 262 l-4 10 h8 z"/>
+          <circle cx="260" cy="260" r="3.2" fill="#ffc65a"/>
+          <path d="M224 300 h72 l-14 -10 h-44 z"/>
+          <rect x="234" y="300" width="52" height="10"/>
+          <path d="M218 318 h84 l-16 -11 h-52 z"/>
+          <rect x="230" y="318" width="60" height="18"/>
+          <path d="M232 288 h56 l-12 -10 h-32 z"/>
+          <rect x="242" y="288" width="36" height="6"/>
+          <path d="M246 278 h28 l-14 -12 z"/>
+        </g>
+        <g fill="#251a4f">
+          <rect x="120" y="330" width="22" height="42"/><rect x="146" y="318" width="14" height="54"/>
+          <rect x="342" y="326" width="18" height="46"/><rect x="364" y="340" width="26" height="32"/>
+        </g>
+        <!-- 东京：富士山 + 东京塔 -->
+        <path d="M450 372 L560 268 Q568 260 576 268 L700 372 Z" fill="#2a1f55"/>
+        <path d="M530 296 L560 268 Q568 260 576 268 L606 296 L594 290 L584 300 L572 288 L560 300 L548 290 Z" fill="#f4ecff" opacity=".9"/>
+        <g fill="#1d1440">
+          <path d="M628 372 L640 300 L643 300 L646 236 L648 236 L651 300 L654 300 L666 372 L658 372 L650 330 L644 330 L636 372 Z"/>
+          <rect x="636" y="314" width="22" height="4"/><rect x="641" y="286" width="12" height="3"/>
+        </g>
+        <circle cx="647" cy="234" r="2.4" fill="#ff5a4f"/>
+        <g fill="#251a4f">
+          <rect x="676" y="334" width="20" height="38"/><rect x="700" y="346" width="16" height="26"/><rect x="600" y="344" width="20" height="28"/>
+        </g>
+        <!-- 海 -->
+        <rect y="370" width="800" height="70" fill="url(#sea)"/>
+        <g stroke="#ffc65a" stroke-linecap="round" opacity=".45">
+          <line x1="370" y1="382" x2="430" y2="382" stroke-width="2"/>
+          <line x1="385" y1="392" x2="415" y2="392" stroke-width="1.5"/>
+          <line x1="394" y1="401" x2="406" y2="401" stroke-width="1"/>
+        </g>
+        <g font-family="-apple-system, PingFang SC, sans-serif" font-size="13" fill="#e9e3ff" text-anchor="middle" opacity=".85">
+          <text x="260" y="420">北京</text>
+          <text x="560" y="420">东京</text>
+        </g>
+      </svg>
+
+      <div class="sky-text">
+        <h1>北京 ⇄ 东京羽田</h1>
+        <p>2027年2月11日去，2月15日回<br>正月初六出发，初十回来</p>
+      </div>
+      <div class="lanterns" aria-hidden="true">
+        <div class="lantern"><svg viewBox="0 0 34 78"><line x1="17" y1="0" x2="17" y2="22" stroke="#ffc65a" stroke-width="1.2"/><rect x="11" y="20" width="12" height="5" rx="1.5" fill="#ffc65a"/><ellipse cx="17" cy="41" rx="15" ry="17" fill="#d7262f"/><ellipse cx="17" cy="41" rx="7" ry="17" fill="none" stroke="#ff7a5c" stroke-width="1" opacity=".7"/><ellipse cx="17" cy="41" rx="15" ry="17" fill="none" stroke="#9c1220" stroke-width="1"/><text x="17" y="46" text-anchor="middle" font-size="13" font-weight="700" fill="#ffd27a" font-family="Songti SC, STSong, serif">福</text><rect x="11" y="57" width="12" height="4" rx="1.5" fill="#ffc65a"/><path d="M14 61 v14 M17 61 v16 M20 61 v14" stroke="#ffc65a" stroke-width="1"/></svg></div>
+        <div class="lantern"><svg viewBox="0 0 34 78"><line x1="17" y1="0" x2="17" y2="22" stroke="#ffc65a" stroke-width="1.2"/><rect x="11" y="20" width="12" height="5" rx="1.5" fill="#ffc65a"/><ellipse cx="17" cy="41" rx="15" ry="17" fill="#d7262f"/><ellipse cx="17" cy="41" rx="7" ry="17" fill="none" stroke="#ff7a5c" stroke-width="1" opacity=".7"/><ellipse cx="17" cy="41" rx="15" ry="17" fill="none" stroke="#9c1220" stroke-width="1"/><rect x="11" y="57" width="12" height="4" rx="1.5" fill="#ffc65a"/><path d="M14 61 v14 M17 61 v16 M20 61 v14" stroke="#ffc65a" stroke-width="1"/></svg></div>
+      </div>
     </div>
-    <div class="card tile" data-series="pek_feb">
-      <p class="label">首都–羽田 · 2月整月起价</p>
-      <p class="big" data-f="price">—</p>
-      <p class="note" data-f="detail">—</p>
-      <p class="note" data-f="low">—</p>
-    </div>
-    <div class="card tile" data-series="pkx_feb">
-      <p class="label">大兴–羽田 · 2月整月起价</p>
-      <p class="big" data-f="price">—</p>
-      <p class="note" data-f="detail">—</p>
-      <p class="note" data-f="low">—</p>
-    </div>
-    <div class="card tile" data-series="exact">
-      <p class="label">你的日期 2/11–2/15 · 往返</p>
-      <p class="big" data-f="price">—</p>
-      <p class="note" data-f="detail">—</p>
-      <p class="note" data-f="low">—</p>
+
+    <div class="board">
+      <div class="countdown">
+        <span class="flaps" id="cd" aria-live="polite"></span>
+        <span class="cd-text"><b>天后出发</b>距 2月11日</span>
+      </div>
+      <div class="rows">
+        <div class="row" data-series="pek_feb">
+          <div class="route" aria-label="首都机场到羽田"><span class="flaps" data-code="PEK"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" transform="rotate(90 12 12)"/></svg><span class="flaps" data-code="HND"></span></div>
+          <div class="price"><span class="yen">¥</span><span class="flaps" data-f="price"></span></div>
+          <p class="row-note"><b>首都 → 羽田，2月最低</b><span data-f="detail">—</span></p>
+        </div>
+        <div class="row" data-series="pkx_feb">
+          <div class="route" aria-label="大兴机场到羽田"><span class="flaps" data-code="PKX"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" transform="rotate(90 12 12)"/></svg><span class="flaps" data-code="HND"></span></div>
+          <div class="price"><span class="yen">¥</span><span class="flaps" data-f="price"></span></div>
+          <p class="row-note"><b>大兴 → 羽田，2月最低</b><span data-f="detail">—</span></p>
+        </div>
+        <div class="row mine" data-series="exact">
+          <div class="route" aria-label="你的日期，2月11日到2月15日"><span class="flaps" data-code="2/11"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 7h11l-3-3 1.4-1.4L22 8l-5.6 5.4L15 12l3-3H7zm10 10H6l3 3-1.4 1.4L2 16l5.6-5.4L9 12l-3 3h11z"/></svg><span class="flaps" data-code="2/15"></span></div>
+          <div class="price"><span class="yen">¥</span><span class="flaps" data-f="price"></span></div>
+          <p class="row-note"><b>你的日期</b><span data-f="detail">—</span></p>
+        </div>
+      </div>
+      <p class="board-foot" id="updated">正在读取最新价格</p>
     </div>
   </section>
 
-  <section class="card">
-    <h2>价格走势</h2>
-    <p class="note">横轴是“哪天查的”，纵轴是当天看到的往返最低价（含税，经济舱，1人）。线上最低的那一天，就是“哪天看最便宜”的答案。</p>
+  <section class="verdict" aria-label="结论">
+    <p class="lead">目前2月最低往返 <strong id="best-price">—</strong>，在<span id="best-name">—</span>。</p>
+    <p class="more">你是春节假期尾段（初六）出发、节后周一（初十）回来，刚好避开出境和返程两个高峰。但春节的便宜舱位往往先卖完，别按平日“提前40天最便宜”的规律干等。降价时微信会提醒你。</p>
+  </section>
+
+  <section class="panel" aria-labelledby="trend-h">
+    <h2 id="trend-h"><span class="ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>价格走势</h2>
+    <p class="note">横轴是查价那天，纵轴是当天看到的往返最低价（含税，经济舱，1人）。线上的最低点，就是哪天看最便宜。</p>
     <div class="legend" id="legend"></div>
     <div class="chart" id="trend"></div>
   </section>
 
-  <section class="card">
-    <h2>查你这几天的精确价格</h2>
-    <p class="note">已填好 北京（首都+大兴）→ 羽田，2027年2月11日去、2月15日回。查到的价格发给 Claude，就会记进这个网站。</p>
-    <div class="links">
-      <a href="https://flights.ctrip.com/online/list/round-bjs-hnd?depdate=2027-02-11_2027-02-15&amp;cabin=y_s&amp;adult=1" target="_blank" rel="noopener">携程</a>
-      <a href="https://www.tianxun.com/transport/flights/bjsa/hnd/270211/270215/?adultsv2=1&amp;cabinclass=economy" target="_blank" rel="noopener">Skyscanner 天巡</a>
-      <a href="https://www.google.com/travel/flights?q=Flights%20from%20BJS%20to%20HND%20on%202027-02-11%20through%202027-02-15&amp;curr=CNY&amp;hl=zh-CN" target="_blank" rel="noopener">Google Flights</a>
+  <section class="ticket" aria-labelledby="ticket-h">
+    <div class="t-head">
+      <h2 id="ticket-h">去查你这几天的价格</h2>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" transform="rotate(90 12 12)"/></svg>
     </div>
-    <p class="note">Skyscanner 和 Google Flights 都能给这组日期开“价格提醒”，降价会推送，和这里的每日记录互补。</p>
+    <div class="t-main">
+      <dl class="t-grid">
+        <div><dt>出发</dt><dd><b>PEK/PKX</b>北京首都或大兴</dd></div>
+        <div><dt>到达</dt><dd><b>HND</b>东京羽田</dd></div>
+        <div><dt>去程</dt><dd><b>2月11日</b>周四，正月初六</dd></div>
+        <div><dt>回程</dt><dd><b>2月15日</b>周一，正月初十</dd></div>
+      </dl>
+    </div>
+    <div class="t-stub">
+      <a class="go primary" href="https://flights.ctrip.com/online/list/round-bjs-hnd?depdate=2027-02-11_2027-02-15&amp;cabin=y_s&amp;adult=1" target="_blank" rel="noopener">携程 <span>日期已填好</span></a>
+      <a class="go" href="https://www.tianxun.com/transport/flights/bjsa/hnd/270211/270215/?adultsv2=1&amp;cabinclass=economy" target="_blank" rel="noopener">天巡 <span>可开降价提醒</span></a>
+      <a class="go" href="https://www.google.com/travel/flights?q=Flights%20from%20BJS%20to%20HND%20on%202027-02-11%20through%202027-02-15&amp;curr=CNY&amp;hl=zh-CN" target="_blank" rel="noopener">Google Flights <span>可开降价提醒</span></a>
+      <p>查到的价格发给 Claude，就会记到这里。</p>
+    </div>
   </section>
 
-  <section class="card">
-    <h2>什么时候买</h2>
-    <p class="note">几家比价平台对北京–东京航线“提前多久买最便宜”的统计，按2月11日出发换算成日期。它们基于平日数据，春节日期通常更早变贵。</p>
+  <section class="panel" aria-labelledby="tl-h">
+    <h2 id="tl-h"><span class="ic ic-coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>什么时候买</h2>
+    <p class="note">比价平台对北京–东京航线“提前多久买最便宜”的统计，按2月11日出发换算成日期。它们基于平日数据，春节日期通常更早变贵。</p>
     <div class="tl" id="timeline"></div>
   </section>
 
-  <section class="card">
-    <h2>建议</h2>
+  <section class="panel" aria-labelledby="adv-h">
+    <h2 id="adv-h"><span class="ic ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.9V16h5v-.2c0-.8.4-1.5 1-1.9A6 6 0 0 0 12 3z"/></svg></span>怎么买</h2>
     <ol class="steps">
-      <li>先查一次你这组日期的价格并记下来，才有你自己日期的起点。</li>
-      <li>拿它和上面的“2月整月起价”比：只贵几百元，说明春节没怎么加价，合适就下手；贵出很多，就继续盯，但别拖过12月中旬——Jetcost 的统计里，出发前8周左右（12月17日前后）通常最贵。</li>
-      <li>国务院的放假安排往年在11月公布，公布后热门日期会更紧；到时价格已经合适，就别再等。</li>
-      <li>中国航司涉日航线的免费退改只覆盖到2026年10月24日出行，没查到延长到这个冬春航季的公告。下单前看清退改规则，尽量选能免费改期的票价；出发前看一下外交部的最新出行提醒。</li>
+      <li><span>先查一次你这组日期的价格，发给 Claude 记下来，这样才有你自己日期的起点。</span></li>
+      <li><span>拿它和上面的2月最低价比：只贵几百元，说明春节没怎么加价，合适就下手；贵出很多就继续盯，但别拖过12月中旬，Jetcost 的统计里出发前8周左右（12月17日前后）通常最贵。</span></li>
+      <li><span>国务院的放假安排往年11月公布，公布后热门日期会更紧；那时价格已经合适，就别再等。</span></li>
+      <li><span>中国航司涉日航线的免费退改只覆盖到2026年10月24日出行，没查到延长到这个冬春航季的公告。下单前看清退改规则，尽量选能免费改期的票价，出发前看一下外交部的最新出行提醒。</span></li>
     </ol>
   </section>
 
-  <section class="card">
-    <h2>往年同期对比</h2>
-    <p class="note">没有公开的逐日历史票价，所以这里比的是2月11–15日在当年春节中的位置、当年行情和新闻里的价格线索。</p>
-    <div class="tablebox" style="max-height:none">
-      <table class="hist">
-        <thead><tr><th>年份</th><th>当年春节假期</th><th>2月11–15日在当年是</th><th>行情</th><th>价格线索</th></tr></thead>
-        <tbody id="history"></tbody>
-      </table>
-    </div>
+  <section aria-labelledby="yr-h" style="display:grid; gap:12px">
+    <h2 id="yr-h" style="padding:0 8px"><span class="ic ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg></span>往年同一时候</h2>
+    <p class="note" style="padding:0 8px">没有公开的逐日历史票价，这里比的是2月11–15日在当年春节里的位置、当年行情和新闻里的价格线索。</p>
+    <div class="years" id="years"></div>
   </section>
 
-  <section class="card">
-    <h2>全部记录</h2>
-    <p class="note">“2月整月起价”是 Skyscanner 航线页在过去约4天里看到的2月任意日期最低往返价，不是你那几天的价格，但能看出整个2月的价格水位怎么走。</p>
-    <div class="tablebox">
+  <section class="panel" aria-labelledby="log-h">
+    <h2 id="log-h"><span class="ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span>每天的记录</h2>
+    <p class="note">“2月最低”是天巡航线页在过去约4天里看到的2月任意日期最低往返价，不是你那几天的价格，但能看出整个2月的价格水位怎么走。</p>
+    <div class="logbox">
       <table class="log">
-        <thead><tr><th>查价日</th><th>线路</th><th>往返价（元）</th><th>航司</th><th>那张票的日期</th><th>直飞</th></tr></thead>
+        <thead><tr><th>查价日</th><th>线路</th><th class="p">往返价</th></tr></thead>
         <tbody id="log"></tbody>
       </table>
     </div>
@@ -200,7 +407,7 @@ footer ul { margin: 0; padding-left: 1.1rem; }
   <footer>
     <span>数据来源</span>
     <ul>
-      <li><a href="https://www.tianxun.com/routes/pek/hnd/beijing-capital-to-tokyo-haneda.html" target="_blank" rel="noopener">Skyscanner 首都–羽田航线页</a>、<a href="https://www.tianxun.com/routes/pkx/hnd/beijing-daxing-to-tokyo-haneda.html" target="_blank" rel="noopener">大兴–羽田航线页</a>（每日价格）</li>
+      <li><a href="https://www.tianxun.com/routes/pek/hnd/beijing-capital-to-tokyo-haneda.html" target="_blank" rel="noopener">天巡 首都–羽田航线页</a>、<a href="https://www.tianxun.com/routes/pkx/hnd/beijing-daxing-to-tokyo-haneda.html" target="_blank" rel="noopener">大兴–羽田航线页</a>（每日价格）</li>
       <li><a href="https://www.kayak.com/flight-routes/Beijing-Capital-PEK/Tokyo-Haneda-HND" target="_blank" rel="noopener">Kayak</a>、<a href="https://us.jetcost.com/en/flights/beijing-capital/tokyo-haneda/PEK-HND" target="_blank" rel="noopener">Jetcost</a>（提前多久买）</li>
       <li><a href="https://m.thepaper.cn/newsDetail_forward_29984028" target="_blank" rel="noopener">澎湃新闻 2025年春节机票</a>、<a href="https://www.21jingji.com/article/20260130/herald/f0c85ab6732c41e32d9f79b391408bbb.html" target="_blank" rel="noopener">21世纪经济报道 2026年中日航线</a>、<a href="https://www.ccaonline.cn/yunshu/ystop/1152039.html" target="_blank" rel="noopener">民航资源网</a>、<a href="http://www.news.cn/world/20260126/9905820e6427452b8a58435fa3b1dd17/c.html" target="_blank" rel="noopener">新华网 退改政策</a>、<a href="https://www.sohu.com/a/1095505594_121123774" target="_blank" rel="noopener">2027年放假推算</a></li>
     </ul>
@@ -211,46 +418,95 @@ footer ul { margin: 0; padding-left: 1.1rem; }
 (() => {
   const DEPART = Date.UTC(2027, 1, 11); // 出发日 2027-02-11
   const SERIES = [
-    { id: 'pek_feb', name: '首都–羽田 2月起价', color: 'var(--s1)' },
-    { id: 'pkx_feb', name: '大兴–羽田 2月起价', color: 'var(--s2)' },
+    { id: 'pek_feb', name: '首都–羽田', color: 'var(--s1)' },
+    { id: 'pkx_feb', name: '大兴–羽田', color: 'var(--s2)' },
     { id: 'exact', name: '你的日期 2/11–2/15', color: 'var(--s3)' },
   ];
-  const HISTORY = [
-    { year: '2025', holiday: '1/28–2/4，8天（除夕1月28日）', your_dates: '正月十四–十八，节后一周', market: '赴日热，日本刚放宽签证', price_note: '春节期间北京–东京往返：国航最高约¥9,595、南航约¥8,076（2025年1月携程查询）' },
-    { year: '2026', holiday: '2/15–2/23，9天（除夕2月16日）', your_dates: '除夕前5天到前1天，春运中', market: '外交部提醒避免赴日；春运首周中日航班同比−49%，旅客−54%', price_note: '羽田受影响最小（中国航司2–3月减班约12–13%）；大兴–羽田1/28起每周3班、2/23–3/3停飞；部分减班航线反而涨价' },
-    { year: '2027', holiday: '预计2/5–2/13，9天（除夕2月5日；官方通知未发）', your_dates: '正月初六–初十：假期尾段出发、节后周一返回', market: '中日航班仍未恢复到2025年水平；三大航涉日免费退改只覆盖到2026/10/24出行', price_note: '2月整月最低往返见上方；你的具体日期还没有公开报价' },
+  const YEARS = [
+    { year: '2025', holiday: '1月28日–2月4日，8天', your_dates: '正月十四到十八，节后一周', market: '赴日正热，日本刚放宽签证', price_note: '春节期间北京–东京往返，国航最高约 ¥9,595，南航约 ¥8,076（2025年1月携程查询）' },
+    { year: '2026', holiday: '2月15日–23日，9天', your_dates: '除夕前5天到前1天，春运中', market: '外交部提醒避免赴日；春运首周中日航班同比少49%，旅客少54%', price_note: '羽田受影响最小（中国航司2–3月减班约12–13%）；大兴–羽田1月28日起每周3班，2月23日至3月3日停飞；部分减班航线反而涨价' },
+    { year: '2027', now: true, holiday: '预计2月5日–13日，9天（官方通知未发）', your_dates: '正月初六到初十：假期尾段出发，节后周一返回', market: '中日航班还没恢复到2025年水平；三大航涉日免费退改只覆盖到2026年10月24日出行', price_note: '2月整月最低往返见上方看板；你的具体日期还没有公开报价' },
   ];
   const MILESTONES = [
     { source: 'Kayak', label: '历史上最低价出现在出发前20–25周', start: '2026-08-20', end: '2026-09-24' },
     { source: '国务院', label: '放假安排往年11月公布，公布后春节票会更紧', start: '2026-11-01', end: '2026-11-20' },
     { source: 'Jetcost', label: '出发前约8周通常最贵', start: '2026-12-17', end: '2026-12-17' },
-    { source: 'Skyscanner', label: '东京航线约提前40天最便宜（平日统计）', start: '2027-01-02', end: '2027-01-02' },
+    { source: '天巡', label: '东京航线约提前40天最便宜（平日统计）', start: '2027-01-02', end: '2027-01-02' },
     { source: 'Kayak', label: '出发前3–4周能买到低于平均的价（平日统计）', start: '2027-01-14', end: '2027-01-21' },
   ];
 
+  const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = (sel, root = document) => root.querySelector(sel);
   const fmtPrice = (n) => Number(n).toLocaleString('en-US');
   const parseDay = (s) => new Date(String(s).slice(0, 10) + 'T00:00:00Z');
   const fmtDay = (d) => `${d.getUTCMonth() + 1}月${d.getUTCDate()}日`;
   const fmtMD = (d) => `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
   const todayUTC = () => { const n = new Date(); return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()); };
-  const seriesOf = (id) => SERIES.find((s) => s.id === id) || SERIES[0];
+  const seriesOf = (id) => SERIES.find((x) => x.id === id) || SERIES[0];
   const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
   const SVGNS = 'http://www.w3.org/2000/svg';
-  const s = (tag, attrs) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  const sv = (tag, attrs) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
 
-  // 距出发天数
-  $('#countdown').textContent = String(Math.max(0, Math.round((DEPART - todayUTC()) / 864e5)));
+  // ---------- 夜空：星星、飞机 ----------
+  (function stars() {
+    const g = $('#stars');
+    let seed = 7;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    for (let i = 0; i < 70; i++) {
+      const c = sv('circle', { cx: (rnd() * 800).toFixed(1), cy: (rnd() * 230).toFixed(1), r: (rnd() * 1.3 + .4).toFixed(2), opacity: (rnd() * .6 + .3).toFixed(2) });
+      c.setAttribute('class', 'star' + (i % 4 === 0 ? ' tw' : ''));
+      if (i % 4 === 0) c.style.animationDelay = (-rnd() * 3).toFixed(2) + 's';
+      g.append(c);
+    }
+  })();
+  if (REDUCED) {
+    const fly = $('#fly'); if (fly) fly.remove();
+    const arc = $('#arc'); const plane = $('#plane');
+    const L = arc.getTotalLength(), p = arc.getPointAtLength(L * 0.5), q = arc.getPointAtLength(L * 0.5 + 1);
+    plane.setAttribute('transform', `translate(${p.x} ${p.y}) rotate(${Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI})`);
+  }
 
-  // 往年对比
-  const hist = $('#history');
-  HISTORY.forEach((r) => {
-    const tr = document.createElement('tr');
-    ['year', 'holiday', 'your_dates', 'market', 'price_note'].forEach((k) => tr.append(h('td', '', r[k])));
-    hist.append(tr);
+  // ---------- 翻牌 ----------
+  const DIGITS = '0123456789';
+  const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  function setFlaps(el, text, { animate = true, dim = false, delay = 0 } = {}) {
+    el.replaceChildren();
+    el.setAttribute('aria-label', text);
+    [...text].forEach((ch, i) => {
+      const isPunct = /[,/.]/.test(ch);
+      const tile = h('span', 'flap' + (isPunct ? ' punct' : '') + (dim ? ' dim' : ''));
+      tile.setAttribute('aria-hidden', 'true');
+      el.append(tile);
+      if (!animate || REDUCED || isPunct || dim) { tile.textContent = ch; return; }
+      const pool = /\d/.test(ch) ? DIGITS : LETTERS;
+      const stopAt = performance.now() + delay + 380 + i * 90;
+      const spin = () => {
+        tile.classList.remove('tick'); void tile.offsetWidth; tile.classList.add('tick');
+        if (performance.now() >= stopAt) { tile.textContent = ch; return; }
+        tile.textContent = pool[Math.floor(Math.random() * pool.length)];
+        setTimeout(spin, 70);
+      };
+      setTimeout(spin, delay);
+    });
+  }
+
+  const daysLeft = Math.max(0, Math.round((DEPART - todayUTC()) / 864e5));
+  setFlaps($('#cd'), String(daysLeft), { delay: 0 });
+  document.querySelectorAll('[data-code]').forEach((el, i) => setFlaps(el, el.dataset.code, { delay: 120 + i * 40 }));
+
+  // ---------- 往年 ----------
+  const years = $('#years');
+  YEARS.forEach((y) => {
+    const card = h('article', 'year' + (y.now ? ' now' : ''));
+    const h3 = h('h3', '', y.year);
+    if (y.now) h3.append(h('small', '', '今年'));
+    const dl = h('dl');
+    [['春节假期', y.holiday], ['2月11–15日在当年是', y.your_dates], ['行情', y.market], ['价格线索', y.price_note]].forEach(([k, v]) => { dl.append(h('dt', '', k), h('dd', '', v)); });
+    card.append(h3, dl);
+    years.append(card);
   });
 
-  // 购票时间线
+  // ---------- 购票时间线 ----------
   function drawTimeline() {
     const el = $('#timeline');
     el.replaceChildren();
@@ -258,21 +514,23 @@ footer ul { margin: 0; padding-left: 1.1rem; }
     const x0 = Date.UTC(2026, 7, 15), x1 = Date.UTC(2027, 1, 22);
     const pct = (t) => Math.min(100, Math.max(0, ((t - x0) / (x1 - x0)) * 100));
     const ft = h('div', 'flag today', '今天 ' + fmtMD(new Date(today)));
-    ft.style.left = `clamp(1.6rem, ${pct(today)}%, calc(100% - 3rem))`;
-    const fg = h('div', 'flag', '出发 2/11');
-    fg.style.left = `clamp(2rem, ${pct(DEPART)}%, calc(100% - 2rem))`;
+    ft.style.left = `clamp(1.8rem, ${pct(today)}%, calc(100% - 3.2rem))`;
+    const fg = h('div', 'flag', '2/11 出发');
+    fg.style.left = `clamp(2.4rem, ${pct(DEPART)}%, calc(100% - 2.4rem))`;
     el.append(ft, fg);
     MILESTONES.forEach((m) => {
       const a = +parseDay(m.start), b = +parseDay(m.end);
       const lane = h('div', 'lane');
       const txt = h('div', 'txt');
       const when = a === b ? fmtDay(new Date(a)) : `${fmtDay(new Date(a))}–${fmtDay(new Date(b))}`;
-      const tspan = h('span'); tspan.append(h('em', '', `${m.source} · ${when}　`), document.createTextNode(m.label)); txt.append(tspan);
+      const span = h('span');
+      span.append(h('em', '', `${m.source}，${when}`), document.createTextNode(m.label));
+      txt.append(span);
       const track = h('div', 'track');
       const bar = h('div', 'bar');
-      bar.style.background = b < today ? 'var(--past)' : 'var(--s1)';
+      bar.style.background = b < today ? 'var(--past)' : 'linear-gradient(90deg, #6a56d6, var(--coral))';
       const l = pct(a);
-      if (a === b) { bar.style.left = `calc(${l}% - 5px)`; bar.style.width = '10px'; }
+      if (a === b) { bar.style.left = `calc(${l}% - 4px)`; bar.style.width = '8px'; bar.style.background = b < today ? 'var(--past)' : 'var(--coral)'; }
       else { bar.style.left = l + '%'; bar.style.width = Math.max(0, pct(b) - l) + '%'; }
       track.append(bar);
       lane.append(txt, track);
@@ -291,42 +549,45 @@ footer ul { margin: 0; padding-left: 1.1rem; }
   }
   drawTimeline();
 
-  // 价格数据
+  // ---------- 价格 ----------
   let ROWS = [];
 
   function summarize() {
     return SERIES.map((sr) => {
       const rows = ROWS.filter((r) => r.series === sr.id).sort((a, b) => (a.checked < b.checked ? -1 : 1));
-      if (!rows.length) return { ...sr, last: null, low: null };
+      if (!rows.length) return { ...sr, last: null, low: null, n: 0 };
       const last = rows[rows.length - 1];
       const low = rows.reduce((m, r) => (r.price < m.price ? r : m), rows[0]);
       return { ...sr, last, low, n: rows.length };
     });
   }
 
-  function drawTiles(sum) {
-    sum.forEach((x) => {
-      const card = $(`.tile[data-series="${x.id}"]`);
-      if (!card) return;
-      const price = $('[data-f="price"]', card), detail = $('[data-f="detail"]', card), low = $('[data-f="low"]', card);
-      price.replaceChildren();
+  const fareText = (r) => {
+    const who = [r.airline, r.direct].filter(Boolean).join('');
+    const when = (r.fare_dates || '').replace(/\s*·\s*/g, '，');
+    return [who, when].filter(Boolean).join('，');
+  };
+
+  function drawBoard(sum) {
+    sum.forEach((x, i) => {
+      const row = $(`.row[data-series="${x.id}"]`);
+      if (!row) return;
+      const price = $('[data-f="price"]', row), detail = $('[data-f="detail"]', row);
       if (!x.last) {
-        price.className = 'big muted';
-        price.textContent = '未记录';
-        detail.textContent = x.id === 'exact' ? '还没查到这组日期的公开报价，用下面的链接查一次。' : '这条线路还没有记录。';
-        low.textContent = '';
+        setFlaps(price, '----', { dim: true });
+        detail.textContent = x.id === 'exact' ? '还没查到这组日期的报价，用下面的登机牌去查。' : '这条线路还没有记录。';
         return;
       }
-      price.className = 'big';
-      price.append(document.createTextNode('¥' + fmtPrice(x.last.price)));
-      detail.textContent = [x.last.airline, x.last.fare_dates, fmtDay(parseDay(x.last.checked)) + '查'].filter(Boolean).join(' · ');
-      low.textContent = x.n > 1 ? `最低记录 ¥${fmtPrice(x.low.price)}，${fmtDay(parseDay(x.low.checked))}查到` : '第一天记录，之后会显示最低价是哪天查到的';
+      setFlaps(price, fmtPrice(x.last.price), { delay: 300 + i * 160 });
+      let text = fareText(x.last);
+      if (x.n > 1) text += x.low === x.last ? '，今天是最低' : `，最低 ¥${fmtPrice(x.low.price)} 在${fmtDay(parseDay(x.low.checked))}`;
+      detail.textContent = text;
     });
     const have = sum.filter((x) => x.last);
     if (have.length) {
       const best = have.reduce((m, x) => (x.last.price < m.last.price ? x : m), have[0]);
       $('#best-price').textContent = '¥' + fmtPrice(best.last.price);
-      $('#best-name').textContent = best.name;
+      $('#best-name').textContent = best.id === 'exact' ? '你的日期' : best.name;
     }
   }
 
@@ -336,21 +597,28 @@ footer ul { margin: 0; padding-left: 1.1rem; }
     SERIES.filter((sr) => ROWS.some((r) => r.series === sr.id)).forEach((sr) => {
       const it = h('span');
       const d = h('i', 'dot'); d.style.background = sr.color;
-      it.append(d, document.createTextNode(sr.name));
+      it.append(d, document.createTextNode(sr.id === 'exact' ? sr.name : sr.name + ' 2月最低'));
       lg.append(it);
     });
+  }
+
+  function niceStep(range, count) {
+    const raw = range / count, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
   }
 
   function drawTrend() {
     const el = $('#trend');
     el.replaceChildren();
     const rows = ROWS.map((r) => ({ ...r, day: parseDay(r.checked) })).filter((r) => !isNaN(r.price) && !isNaN(r.day));
-    if (!rows.length) { el.append(h('p', 'note', '还没有价格记录。')); return; }
-    const W = Math.max(280, el.clientWidth || 320), H = 230, B = 26;
-    const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': '每日查到的往返最低价走势' });
+    if (!rows.length) { el.append(h('p', 'note', '还没有价格记录，明早第一次自动查价后会出现。')); return; }
+    const W = Math.max(280, el.clientWidth || 320), H = 220, B = 26;
+    const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': '每天查到的往返最低价走势' });
     svg.style.display = 'block'; svg.style.overflow = 'visible';
     el.append(svg);
-    const measure = s('text', { 'font-size': 12, visibility: 'hidden' });
+    const defs = sv('defs', {});
+    svg.append(defs);
+    const measure = sv('text', { 'font-size': 12, visibility: 'hidden' });
     svg.append(measure);
     const widthOf = (t) => { measure.textContent = t; return measure.getComputedTextLength(); };
 
@@ -376,56 +644,68 @@ footer ul { margin: 0; padding-left: 1.1rem; }
     const Y = (v) => (H - B) - ((v - y0) / (y1 - y0)) * (H - B - 8);
 
     yTicks.forEach((v) => {
-      svg.append(s('line', { x1: left, x2: W - right, y1: Y(v), y2: Y(v), stroke: 'var(--grid)', 'stroke-width': 1 }));
-      const t = s('text', { x: left - 8, y: Y(v), dy: '0.32em', 'text-anchor': 'end', 'font-size': 12, fill: 'var(--muted)' });
+      svg.append(sv('line', { x1: left, x2: W - right, y1: Y(v), y2: Y(v), stroke: 'var(--grid)', 'stroke-width': 1 }));
+      const t = sv('text', { x: left - 8, y: Y(v), dy: '0.32em', 'text-anchor': 'end', 'font-size': 12, fill: 'var(--ink-2)' });
       t.textContent = '¥' + fmtPrice(v);
       svg.append(t);
     });
-    svg.append(s('line', { x1: left, x2: W - right, y1: H - B, y2: H - B, stroke: 'var(--axis)', 'stroke-width': 1 }));
+    svg.append(sv('line', { x1: left, x2: W - right, y1: H - B, y2: H - B, stroke: 'var(--line)', 'stroke-width': 1 }));
 
     const nTicks = Math.max(2, Math.min(6, Math.floor((W - left - right) / 70)));
     const dayStep = Math.max(1, Math.ceil((t1 - t0) / 864e5 / nTicks));
     for (let t = t0 + 864e5; t <= t1 - 864e5 / 2; t += dayStep * 864e5) {
-      const tx = s('text', { x: X(t), y: H - 8, 'text-anchor': 'middle', 'font-size': 12, fill: 'var(--muted)' });
+      const tx = sv('text', { x: X(t), y: H - 8, 'text-anchor': 'middle', 'font-size': 12, fill: 'var(--ink-2)' });
       tx.textContent = fmtMD(new Date(t));
       svg.append(tx);
     }
 
+    const lowest = ends.reduce((m, e) => (e.last.price < m.last.price ? e : m), ends[0]);
+    ends.forEach((e, i) => {
+      if (e.pts.length > 1 && e === lowest) {
+        const gid = 'fade' + i;
+        const lg = sv('linearGradient', { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 });
+        [[0, .22], [.6, .06], [1, 0]].forEach(([o, op]) => { const st = sv('stop', { offset: o, 'stop-opacity': op }); st.style.stopColor = e.sr.color; lg.append(st); });
+        defs.append(lg);
+        const top = e.pts.map((p, k) => `${k ? 'L' : 'M'}${X(p.day).toFixed(1)},${Y(p.price).toFixed(1)}`).join('');
+        const area = `${top}L${X(e.last.day).toFixed(1)},${H - B}L${X(e.pts[0].day).toFixed(1)},${H - B}Z`;
+        svg.append(sv('path', { d: area, fill: `url(#${gid})` }));
+      }
+    });
     ends.forEach((e) => {
       if (e.pts.length > 1) {
-        const d = e.pts.map((p, i) => `${i ? 'L' : 'M'}${X(p.day).toFixed(1)},${Y(p.price).toFixed(1)}`).join('');
-        svg.append(s('path', { d, fill: 'none', stroke: e.sr.color, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+        const top = e.pts.map((p, k) => `${k ? 'L' : 'M'}${X(p.day).toFixed(1)},${Y(p.price).toFixed(1)}`).join('');
+        svg.append(sv('path', { d: top, fill: 'none', stroke: e.sr.color, 'stroke-width': 2.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
       }
     });
     const dots = [];
     rows.forEach((r) => {
-      const c = s('circle', { cx: X(r.day), cy: Y(r.price), r: 4, fill: seriesOf(r.series).color, stroke: 'var(--panel)', 'stroke-width': 2 });
+      const c = sv('circle', { cx: X(r.day), cy: Y(r.price), r: 4.5, fill: seriesOf(r.series).color, stroke: 'var(--surface)', 'stroke-width': 2 });
       dots.push([r, c]);
       svg.append(c);
     });
     const labels = ends.map((e) => ({ ...e, ly: Y(e.last.price) })).sort((a, b) => a.ly - b.ly);
     for (let i = 1; i < labels.length; i++) if (labels[i].ly - labels[i - 1].ly < 15) labels[i].ly = labels[i - 1].ly + 15;
     labels.forEach((e) => {
-      const t = s('text', { x: X(e.last.day) + 8, y: e.ly, dy: '0.32em', 'font-size': 12, fill: 'var(--fg)' });
+      const t = sv('text', { x: X(e.last.day) + 9, y: e.ly, dy: '0.32em', 'font-size': 12.5, 'font-weight': 700, fill: 'var(--ink)' });
       t.textContent = e.label;
       svg.append(t);
     });
 
     const tip = h('div', 'tip'); tip.hidden = true; el.append(tip);
-    const hit = s('rect', { x: left, y: 0, width: Math.max(0, W - right - left), height: H - B, fill: 'transparent' });
+    const hit = sv('rect', { x: left, y: 0, width: Math.max(0, W - right - left), height: H - B, fill: 'transparent' });
     svg.append(hit);
     const toSvg = (ev) => { const b = svg.getBoundingClientRect(); return [(ev.clientX - b.left) * (W / b.width), (ev.clientY - b.top) * (H / b.height)]; };
     const show = (ev) => {
       const [mx, my] = toSvg(ev);
       let best = null, bd = Infinity;
       rows.forEach((r) => { const d = Math.hypot(X(r.day) - mx, Y(r.price) - my); if (d < bd) { bd = d; best = r; } });
-      dots.forEach(([r, c]) => c.setAttribute('r', r === best && bd < 48 ? 6 : 4));
+      dots.forEach(([r, c]) => c.setAttribute('r', r === best && bd < 48 ? 6.5 : 4.5));
       if (!best || bd > 48) { tip.hidden = true; return; }
       tip.replaceChildren();
-      tip.append(h('div', 'd', fmtDay(best.day) + ' 查价'));
+      tip.append(h('div', 'd', fmtDay(best.day) + '查到'));
       const line = h('div', 'r'); const sw = h('i', 'dot'); sw.style.background = seriesOf(best.series).color;
       line.append(sw, document.createTextNode(`${best.series_name}  ¥${fmtPrice(best.price)}`));
-      tip.append(line, h('div', '', [best.airline, best.fare_dates].filter(Boolean).join(' · ')));
+      tip.append(line, h('div', '', fareText(best)));
       tip.hidden = false;
       const b = svg.getBoundingClientRect(), eb = el.getBoundingClientRect();
       const px = X(best.day) * (b.width / W) + (b.left - eb.left);
@@ -436,20 +716,27 @@ footer ul { margin: 0; padding-left: 1.1rem; }
     };
     hit.addEventListener('pointermove', show);
     hit.addEventListener('pointerdown', show);
-    hit.addEventListener('pointerleave', () => { tip.hidden = true; dots.forEach(([, c]) => c.setAttribute('r', 4)); });
-  }
-
-  function niceStep(range, count) {
-    const raw = range / count, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
-    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
+    hit.addEventListener('pointerleave', () => { tip.hidden = true; dots.forEach(([, c]) => c.setAttribute('r', 4.5)); });
   }
 
   function drawLog() {
     const tb = $('#log');
     tb.replaceChildren();
-    ROWS.slice().sort((a, b) => (a.checked === b.checked ? (a.series < b.series ? -1 : 1) : a.checked < b.checked ? 1 : -1)).forEach((r) => {
+    const prevOf = {};
+    const asc = ROWS.slice().sort((a, b) => (a.checked < b.checked ? -1 : 1));
+    asc.forEach((r) => { r._prev = prevOf[r.series]; prevOf[r.series] = r; });
+    asc.slice().reverse().sort((a, b) => (a.checked === b.checked ? (a.series < b.series ? -1 : 1) : a.checked < b.checked ? 1 : -1)).forEach((r) => {
       const tr = document.createElement('tr');
-      [r.checked, r.series_name, fmtPrice(r.price), r.airline || '', r.fare_dates || '', r.direct || ''].forEach((v) => tr.append(h('td', '', v)));
+      tr.append(h('td', '', fmtDay(parseDay(r.checked))));
+      const route = h('td', '', seriesOf(r.series).name);
+      route.append(h('span', 'sub', fareText(r)));
+      tr.append(route);
+      const p = h('td', 'p', '¥' + fmtPrice(r.price));
+      if (r._prev && r._prev.price !== r.price) {
+        const d = r.price - r._prev.price;
+        p.append(h('span', d < 0 ? 'down' : 'up', (d < 0 ? '↓' : '↑') + fmtPrice(Math.abs(d))));
+      }
+      tr.append(p);
       tb.append(tr);
     });
   }
@@ -462,17 +749,20 @@ footer ul { margin: 0; padding-left: 1.1rem; }
       ROWS = (Array.isArray(data) ? data : data.rows || [])
         .filter((r) => r && r.price !== null && r.price !== '' && r.price !== undefined)
         .map((r) => ({ ...r, price: Number(r.price), checked: String(r.checked).slice(0, 10) }));
-      if (data.updated) {
-        const u = new Date(data.updated);
-        $('#updated').textContent = isNaN(u) ? String(data.updated) : u.toLocaleString('zh-CN', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-      }
-      drawTiles(summarize());
+      const u = data.updated ? new Date(data.updated) : null;
+      const pad = (n) => String(n).padStart(2, '0');
+      $('#updated').textContent = u && !isNaN(u)
+        ? `最近更新 ${u.getMonth() + 1}月${u.getDate()}日 ${pad(u.getHours())}:${pad(u.getMinutes())}，每天早上 8:48 自动刷新`
+        : '每天早上 8:48 自动刷新';
+      drawBoard(summarize());
       drawLegend();
       drawTrend();
       drawLog();
     } catch (e) {
-      $('#updated').textContent = '价格数据加载失败，稍后刷新再试';
-      $('#updated').classList.add('err');
+      const u = $('#updated');
+      u.textContent = '价格数据没读到，刷新一下页面再试';
+      u.classList.add('err');
+      SERIES.forEach((x) => { const row = $(`.row[data-series="${x.id}"]`); if (row) setFlaps($('[data-f="price"]', row), '----', { dim: true }); });
     }
   }
 
