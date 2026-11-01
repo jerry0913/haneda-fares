@@ -1,4 +1,4 @@
-2026-11-02T01:00+09:00
+2026-11-02T01:01+09:00
 == 2/11 去 · 2/15 回 ==
   PEK（只搜直飞） 共 0 条，直飞 0 条：
   PKX（只搜直飞） 共 1 条，直飞 1 条：南航 PKX 09:45 ¥5286
@@ -6,10 +6,22 @@
   PEK（不筛选） 共 8 条，直飞 1 条：国航 PEK 11:45 ¥13178
   PKX（不筛选） 共 5 条，直飞 0 条：
     南航 PKX 09:45 去 → 直飞回程：南航 15:40 往返¥5286；东航 16:40 往返¥16821
-    选回程出错: JSONDecodeError('Extra data: line 1 column 234 (char 233)')
-记录: {"id": "2026-11-02T01:00_d11", "checked": "2026-11-02", "checked_at": "2026-11-02T01:00+09:00", "trip": "d11", "trip_label": "2/11 去 · 2/15 回", "src": "google", "price": 5286, "airline": "南航", "airport": "PKX", "depart_time": "09:45", "ret_airline": "南航", "ret_time": "15:40", "stops": 0, "nonstop": true, "price_level": "", "source": "Google Flights"}
+    国航 PEK 11:45 去 → 直飞回程：日航 08:50 往返¥8055；全日空 08:55 往返¥8278；东航 16:40 往返¥14185；国航 18:00 往返¥14418
+调试 select_flight: (query: 'Query | ReturnQuery', flight: 'Flights') -> fast_flights.querying.ReturnQuery
+调试 get_selected_flight_page: (query: 'Query | ReturnQuery', flight: "'Flights'", /, *, proxy: 'str | None' = None, integration: 'Integration | None' = None) -> 'SelectedFlightPage'
+调试 build_booking_url: (query: fast_flights.querying.Query, selected_legs: tuple[tuple[fast_flights.querying.SelectedSegment, ...], ...], *, language: str | None = None, currency: str | None = None, tfu: str | None = None) -> str | None
+调试 SelectedFlightPage: (return_query: 'ReturnQuery', url: 'str', f_sid: 'str | None', bl: 'str | None', data_service_requests: 'dict[str, GoogleFlightsDataServiceRequest]') -> None
+调试 选定后的类型: ReturnQuery
+调试 各平台报价失败: TypeError("get_selected_flight_page() missing 1 required positional argument: 'flight'")
+Traceback (most recent call last):
+  File "/home/runner/work/haneda-fares/haneda-fares/.github/scripts/fetch.py", line 183, in via_fastflights
+    page = ff.get_selected_flight_page(sel)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: get_selected_flight_page() missing 1 required positional argument: 'flight'
+
+记录: {"id": "2026-11-02T01:01_d11", "checked": "2026-11-02", "checked_at": "2026-11-02T01:01+09:00", "trip": "d11", "trip_label": "2/11 去 · 2/15 回", "src": "google", "price": 5286, "airline": "南航", "airport": "PKX", "depart_time": "09:45", "ret_airline": "南航", "ret_time": "15:40", "stops": 0, "nonstop": true, "price_level": "", "source": "Google Flights"}
 == 2/10 去 · 2/15 回 ==
-  PEK 出错: JSONDecodeError('Extra data: line 1 column 234 (char 233)')
+  PEK（只搜直飞） 共 0 条，直飞 0 条：
   PKX（只搜直飞） 共 2 条，直飞 2 条：南航 PKX 09:45 ¥6396；东航 PKX 11:10 ¥15619
   BJS（只搜直飞） 共 2 条，直飞 2 条：国航 PEK 11:45 ¥13178；东航 PKX 11:10 ¥15619
   PEK（不筛选） 共 7 条，直飞 1 条：国航 PEK 11:45 ¥13178
@@ -17,4 +29,16 @@
     南航 PKX 09:45 去 → 直飞回程：南航 15:40 往返¥6396；东航 16:40 往返¥18251
     国航 PEK 11:45 去 → 直飞回程：日航 08:50 往返¥8055；全日空 08:55 往返¥8278；东航 16:40 往返¥14185；国航 18:00 往返¥14418
     东航 PKX 11:10 去 → 直飞回程：南航 15:40 往返¥15619；东航 16:40 往返¥19586
-记录: {"id": "2026-11-02T01:00_d10", "checked": "2026-11-02", "checked_at": "2026-11-02T01:00+09:00", "trip": "d10", "trip_label": "2/10 去 · 2/15 回", "src": "google", "price": 6396, "airline": "南航", "airport": "PKX", "depart_time": "09:45", "ret_airline": "南航", "ret_time": "15:40", "stops": 0, "nonstop": true, "price_level": "", "source": "Google Flights"}
+调试 select_flight: (query: 'Query | ReturnQuery', flight: 'Flights') -> fast_flights.querying.ReturnQuery
+调试 get_selected_flight_page: (query: 'Query | ReturnQuery', flight: "'Flights'", /, *, proxy: 'str | None' = None, integration: 'Integration | None' = None) -> 'SelectedFlightPage'
+调试 build_booking_url: (query: fast_flights.querying.Query, selected_legs: tuple[tuple[fast_flights.querying.SelectedSegment, ...], ...], *, language: str | None = None, currency: str | None = None, tfu: str | None = None) -> str | None
+调试 SelectedFlightPage: (return_query: 'ReturnQuery', url: 'str', f_sid: 'str | None', bl: 'str | None', data_service_requests: 'dict[str, GoogleFlightsDataServiceRequest]') -> None
+调试 选定后的类型: ReturnQuery
+调试 各平台报价失败: TypeError("get_selected_flight_page() missing 1 required positional argument: 'flight'")
+Traceback (most recent call last):
+  File "/home/runner/work/haneda-fares/haneda-fares/.github/scripts/fetch.py", line 183, in via_fastflights
+    page = ff.get_selected_flight_page(sel)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: get_selected_flight_page() missing 1 required positional argument: 'flight'
+
+记录: {"id": "2026-11-02T01:01_d10", "checked": "2026-11-02", "checked_at": "2026-11-02T01:01+09:00", "trip": "d10", "trip_label": "2/10 去 · 2/15 回", "src": "google", "price": 6396, "airline": "南航", "airport": "PKX", "depart_time": "09:45", "ret_airline": "南航", "ret_time": "15:40", "stops": 0, "nonstop": true, "price_level": "", "source": "Google Flights"}
