@@ -18,7 +18,7 @@ def yuan(n):
 def load():
     with open("prices.json", encoding="utf-8") as f:
         data = json.load(f)
-    rows = [r for r in data.get("rows", []) if r.get("trip") in LABELS and r.get("nonstop") and r.get("price")]
+    rows = [r for r in data.get("rows", []) if r.get("trip") in LABELS and r.get("nonstop") and r.get("price") and r.get("src", "google") == "google"]
     for r in rows:
         r["price"] = int(r["price"])
     rows.sort(key=lambda r: r.get("checked_at") or r.get("checked") or "")

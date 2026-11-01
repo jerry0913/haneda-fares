@@ -346,7 +346,7 @@ footer ul { margin: 0; padding-left: 1.1rem; }
 
   <section class="panel" aria-labelledby="trend-h">
     <h2 id="trend-h"><span class="ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>哪天看最便宜</h2>
-    <p class="note">同一张直飞往返票（2/11 去、2/15 回），在不同日子打开看到的价格。横轴是查价那天，每天早上 8:30 和晚上 8:30 各记一次；圈出来的点是到目前为止最便宜的一次。</p>
+    <p class="note">同一张直飞往返票（2/11 去、2/15 回），在不同日子打开看到的价格。蓝线是 Google Flights 上自动查到的，绿点是你在携程查到后发给 Claude 记下的。横轴是查价那天，每天早上 8:30 和晚上 8:30 各记一次；圈出来的点是到目前为止最便宜的一次。</p>
     <div class="legend" id="legend"></div>
     <div class="chart" id="trend"></div>
   </section>
@@ -421,8 +421,9 @@ footer ul { margin: 0; padding-left: 1.1rem; }
   const TRIPS = { d11: '2/11 去 · 2/15 回', d10: '2/10 去 · 2/15 回' };
   // 图上的三条线
   const SERIES = [
-    { id: 'd11', field: 'price', name: '2/11 去 直飞往返', color: 'var(--s1)' },
-    { id: 'd10', field: 'price', name: '2/10 去 直飞往返', color: 'var(--s2)' },
+    { id: 'd11', field: 'price', src: 'google', name: '2/11 去 直飞往返（Google）', color: 'var(--s1)' },
+    { id: 'd10', field: 'price', src: 'google', name: '2/10 去 直飞往返（Google）', color: 'var(--s2)' },
+    { id: 'd11', field: 'price', src: 'ctrip', name: '2/11 去 携程（你查到的）', color: 'var(--s3)' },
   ];
   const LEVELS = { low: '偏低', typical: '正常', high: '偏高' };
   const YEARS = [
@@ -560,12 +561,12 @@ footer ul { margin: 0; padding-left: 1.1rem; }
   };
   const directText = () => '';
 
-  function latestOf(trip) {
-    const rs = ROWS.filter((r) => r.trip === trip);
+  function latestOf(trip, src = 'google') {
+    const rs = ROWS.filter((r) => r.trip === trip && r.src === src);
     return rs.length ? rs[rs.length - 1] : null;
   }
-  function lowestOf(trip, field = 'price') {
-    const rs = ROWS.filter((r) => r.trip === trip && r[field]);
+  function lowestOf(trip, field = 'price', src = 'google') {
+    const rs = ROWS.filter((r) => r.trip === trip && r.src === src && r[field]);
     return rs.length ? rs.reduce((m, r) => (r[field] < m[field] ? r : m), rs[0]) : null;
   }
 
@@ -585,10 +586,15 @@ footer ul { margin: 0; padding-left: 1.1rem; }
     facts.replaceChildren();
     const r = latestOf('d11');
     if (!r) { lead.textContent = '还没查到 2/11–2/15 的直飞往返价格，下一次自动查价完成后这里会显示。'; return; }
-    lead.replaceChildren(document.createTextNode('现在 2/11–2/15 直飞往返最低 '), h('strong', '', '¥' + fmtPrice(r.price)), document.createTextNode('。'));
+    lead.replaceChildren(document.createTextNode('Google 上 2/11–2/15 直飞往返最低 '), h('strong', '', '¥' + fmtPrice(r.price)), document.createTextNode('。'));
     const add = (color, parts) => { const li = h('li'); const dot = h('i'); dot.style.background = color; li.append(dot); const span = h('span'); parts.forEach((p) => span.append(typeof p === 'string' ? document.createTextNode(p) : p)); li.append(span); facts.append(li); };
     const low = lowestOf('d11');
-    if (low && ROWS.filter((x) => x.trip === 'd11').length > 1) {
+    const ct = latestOf('d11', 'ctrip');
+    if (ct) {
+      const diff = ct.price - r.price;
+      add('var(--s3)', ['你在携程查到：', h('b', '', '¥' + fmtPrice(ct.price)), `（${ct.airline || ''}，${fmtWhen(ct.checked_at)}）`, diff < 0 ? `，比 Google 便宜 ¥${fmtPrice(-diff)}` : diff > 0 ? `，比 Google 贵 ¥${fmtPrice(diff)}` : '，和 Google 一样']);
+    }
+    if (low && ROWS.filter((x) => x.trip === 'd11' && x.src === 'google').length > 1) {
       add('var(--s1)', ['到目前为止最便宜的一次：', h('b', '', '¥' + fmtPrice(low.price)), `，${fmtWhen(low.checked_at)}查到`]);
     } else {
       add('var(--s1)', ['今天开始记录，之后这里会告诉你哪天看到的最便宜。']);
@@ -613,7 +619,7 @@ footer ul { margin: 0; padding-left: 1.1rem; }
   function drawTrend() {
     const el = $('#trend'), lg = $('#legend');
     el.replaceChildren(); lg.replaceChildren();
-    const series = SERIES.map((s) => ({ ...s, pts: ROWS.filter((r) => r.trip === s.id && r[s.field]).map((r) => ({ t: +new Date(r.checked_at), v: r[s.field], r })) })).filter((s) => s.pts.length);
+    const series = SERIES.map((s) => ({ ...s, pts: ROWS.filter((r) => r.trip === s.id && r.src === s.src && r[s.field]).map((r) => ({ t: +new Date(r.checked_at), v: r[s.field], r })) })).filter((s) => s.pts.length);
     const hist = (HISTORY.d11 || []).map(([d, v]) => ({ t: +parseDay(d) + 12 * 3600e3, v })).filter((p) => p.v);
     if (!series.length) { el.append(h('p', 'note', '还没有价格记录，第一次自动查价后会出现。')); return; }
     series.forEach((s) => { const it = h('span'); const d = h('i', 'dot'); d.style.background = s.color; it.append(d, document.createTextNode(s.name)); lg.append(it); });
@@ -664,7 +670,7 @@ footer ul { margin: 0; padding-left: 1.1rem; }
       svg.append(sv('path', { d, fill: 'none', stroke: 'var(--s1)', 'stroke-width': 1.5, 'stroke-dasharray': '4 4', opacity: .6 }));
     }
     // 主线下的渐变
-    const main = series.find((s) => s.id === 'd11' && s.field === 'price');
+    const main = series.find((s) => s.id === 'd11' && s.src === 'google');
     if (main && main.pts.length > 1) {
       const lgd = sv('linearGradient', { id: 'fadeMain', x1: 0, y1: 0, x2: 0, y2: 1 });
       [[0, .22], [.6, .06], [1, 0]].forEach(([o, op]) => { const st = sv('stop', { offset: o, 'stop-opacity': op }); st.style.stopColor = main.color; lgd.append(st); });
@@ -731,12 +737,12 @@ footer ul { margin: 0; padding-left: 1.1rem; }
     const tb = $('#log');
     tb.replaceChildren();
     const prev = {};
-    ROWS.forEach((r) => { r._prev = prev[r.trip]; prev[r.trip] = r; });
+    ROWS.forEach((r) => { const k = r.trip + r.src; r._prev = prev[k]; prev[k] = r; });
     ROWS.slice().reverse().forEach((r) => {
       const tr = document.createElement('tr');
       tr.append(h('td', '', fmtWhenShort(r.checked_at)));
       const trip = h('td', '', TRIPS[r.trip] || r.trip);
-      trip.append(h('span', 'sub', [routeText(r), directText(r)].filter(Boolean).join('；')));
+      trip.append(h('span', 'sub', r.src === 'ctrip' ? `携程，你查到的${r.airline ? '，' + r.airline : ''}` : routeText(r)));
       tr.append(trip);
       const p = h('td', 'p', '¥' + fmtPrice(r.price));
       if (r._prev && r._prev.price !== r.price) {
@@ -755,7 +761,7 @@ footer ul { margin: 0; padding-left: 1.1rem; }
       const data = await res.json();
       ROWS = (data.rows || [])
         .filter((r) => r && TRIPS[r.trip] && r.nonstop && Number(r.price))
-        .map((r) => ({ ...r, price: Number(r.price), direct_price: r.direct_price ? Number(r.direct_price) : null }))
+        .map((r) => ({ ...r, src: r.src || 'google', price: Number(r.price), direct_price: r.direct_price ? Number(r.direct_price) : null }))
         .sort((a, b) => (String(a.checked_at) < String(b.checked_at) ? -1 : 1));
       HISTORY = data.google_history || {};
       $('#updated').textContent = data.updated

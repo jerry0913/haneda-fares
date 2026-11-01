@@ -16,7 +16,8 @@
    "stops": 0,
    "nonstop": true,
    "price_level": "",
-   "source": "Google Flights"
+   "source": "Google Flights",
+   "src": "google"
   },
   {
    "id": "2026-11-02T00:56_d10",
@@ -33,7 +34,21 @@
    "stops": 0,
    "nonstop": true,
    "price_level": "",
-   "source": "Google Flights"
+   "source": "Google Flights",
+   "src": "google"
+  },
+  {
+   "id": "2026-11-02T00:59_d11_ctrip",
+   "checked": "2026-11-02",
+   "checked_at": "2026-11-02T00:59+09:00",
+   "trip": "d11",
+   "trip_label": "2/11 去 · 2/15 回",
+   "price": 5228,
+   "airline": "国航",
+   "stops": 0,
+   "nonstop": true,
+   "src": "ctrip",
+   "source": "携程（你查到的）"
   }
  ],
  "google_history": {}

@@ -204,6 +204,7 @@ def main():
             "checked_at": now.isoformat(timespec="minutes"),
             "trip": tid,
             "trip_label": trip["label"],
+            "src": "google",
             **result,
         }
         log("记录:", json.dumps(row, ensure_ascii=False))
