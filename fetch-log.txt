@@ -1,10 +1,20 @@
 2026-11-02T00:53+09:00
 == 2/11 去 · 2/15 回 ==
+调试 create_query: (*, flights: list[fast_flights.querying.FlightQuery], seat: Literal['economy', 'premium-economy', 'business', 'first'] = 'economy', trip: Literal['round-trip', 'one-way', 'multi-city'] = 'one-way', passengers: fast_flights.querying.Passengers = <fast_flights.querying.Passengers object at 0x73ba1b761dc0>, language: Union[str, Literal[''], Literal['af', 'bs', 'ca', 'cs', 'da', 'de', 'et', 'en-GB', 'en-US', 'es', 'es-419', 'eu', 'fil', 'fr', 'gl', 'hr', 'id', 'is', 'it', 'sw', 'lv', 'lt', 'hu', 'ms', 'nl', 'no', 'pl', 'pt-BR', 'pt-PT', 'ro', 'sq', 'sk', 'sl', 'sr-Latn', 'fi', 'sv', 'vi', 'tr', 'e
+调试 create_filter: (*, flights: list[fast_flights.querying.FlightQuery], seat: Literal['economy', 'premium-economy', 'business', 'first'] = 'economy', trip: Literal['round-trip', 'one-way', 'multi-city'] = 'one-way', passengers: fast_flights.querying.Passengers = <fast_flights.querying.Passengers object at 0x73ba1b761dc0>, language: Union[str, Literal[''], Literal['af', 'bs', 'ca', 'cs', 'da', 'de', 'et', 'en-GB', 'en-US', 'es', 'es-419', 'eu', 'fil', 'fr', 'gl', 'hr', 'id', 'is', 'it', 'sw', 'lv', 'lt', 'hu', 'ms', 'nl', 'no', 'pl', 'pt-BR', 'pt-PT', 'ro', 'sq', 'sk', 'sl', 'sr-Latn', 'fi', 'sv', 'vi', 'tr', 'e
+调试 get_flights: (q: 'Query | ReturnQuery | str', /, *, proxy: 'str | None' = None, integration: 'Integration | None' = None, shopping: 'ShoppingOptions | None' = None) -> 'MetaList'
+调试 ShoppingOptions: (ranking_mode: 'ShoppingRankingMode' = 'best', result_sort: 'ShoppingResultSort' = 'top_flights') -> None
+调试 FlightQuery: (date: str | datetime.datetime, from_airport: str, to_airport: str, max_stops: int | None = None, airlines: list[str] | None = None) -> None
   PEK 直飞去程 0 个：
   PKX 直飞去程 1 个：南航 09:45 ¥5286
     南航 09:45 去 → 直飞回程：南航 15:40 往返¥5286；东航 16:40 往返¥16821
 记录: {"id": "2026-11-02T00:53_d11", "checked": "2026-11-02", "checked_at": "2026-11-02T00:53+09:00", "trip": "d11", "trip_label": "2/11 去 · 2/15 回", "price": 5286, "airline": "南航", "airport": "PKX", "depart_time": "09:45", "ret_airline": "南航", "ret_time": "15:40", "stops": 0, "nonstop": true, "price_level": "", "source": "Google Flights"}
 == 2/10 去 · 2/15 回 ==
+调试 create_query: (*, flights: list[fast_flights.querying.FlightQuery], seat: Literal['economy', 'premium-economy', 'business', 'first'] = 'economy', trip: Literal['round-trip', 'one-way', 'multi-city'] = 'one-way', passengers: fast_flights.querying.Passengers = <fast_flights.querying.Passengers object at 0x73ba1b761dc0>, language: Union[str, Literal[''], Literal['af', 'bs', 'ca', 'cs', 'da', 'de', 'et', 'en-GB', 'en-US', 'es', 'es-419', 'eu', 'fil', 'fr', 'gl', 'hr', 'id', 'is', 'it', 'sw', 'lv', 'lt', 'hu', 'ms', 'nl', 'no', 'pl', 'pt-BR', 'pt-PT', 'ro', 'sq', 'sk', 'sl', 'sr-Latn', 'fi', 'sv', 'vi', 'tr', 'e
+调试 create_filter: (*, flights: list[fast_flights.querying.FlightQuery], seat: Literal['economy', 'premium-economy', 'business', 'first'] = 'economy', trip: Literal['round-trip', 'one-way', 'multi-city'] = 'one-way', passengers: fast_flights.querying.Passengers = <fast_flights.querying.Passengers object at 0x73ba1b761dc0>, language: Union[str, Literal[''], Literal['af', 'bs', 'ca', 'cs', 'da', 'de', 'et', 'en-GB', 'en-US', 'es', 'es-419', 'eu', 'fil', 'fr', 'gl', 'hr', 'id', 'is', 'it', 'sw', 'lv', 'lt', 'hu', 'ms', 'nl', 'no', 'pl', 'pt-BR', 'pt-PT', 'ro', 'sq', 'sk', 'sl', 'sr-Latn', 'fi', 'sv', 'vi', 'tr', 'e
+调试 get_flights: (q: 'Query | ReturnQuery | str', /, *, proxy: 'str | None' = None, integration: 'Integration | None' = None, shopping: 'ShoppingOptions | None' = None) -> 'MetaList'
+调试 ShoppingOptions: (ranking_mode: 'ShoppingRankingMode' = 'best', result_sort: 'ShoppingResultSort' = 'top_flights') -> None
+调试 FlightQuery: (date: str | datetime.datetime, from_airport: str, to_airport: str, max_stops: int | None = None, airlines: list[str] | None = None) -> None
   PEK 直飞去程 0 个：
   PKX 直飞去程 2 个：南航 09:45 ¥6396；东航 11:10 ¥15619
     南航 09:45 去 → 直飞回程：南航 15:40 往返¥6396；东航 16:40 往返¥18251
