@@ -62,6 +62,7 @@ def via_serpapi(trip, key):
     if not options:
         raise RuntimeError("SerpApi 没有返回带价格的航班")
     best = min(options, key=lambda o: to_int(o["price"]))
+    directs = [o for o in options if len(o.get("flights") or []) == 1]
     legs = best.get("flights") or [{}]
     first = legs[0]
     ins = data.get("price_insights") or {}
@@ -80,91 +81,73 @@ def via_serpapi(trip, key):
         "typical_low": to_int(rng[0]) if len(rng) > 0 else None,
         "typical_high": to_int(rng[1]) if len(rng) > 1 else None,
         "source": "Google Flights（SerpApi）",
+        **({
+            "direct_price": to_int(min(directs, key=lambda o: to_int(o["price"]))["price"]),
+            "direct_airline": (min(directs, key=lambda o: to_int(o["price"]))["flights"][0]).get("airline") or "",
+            "direct_airport": ((min(directs, key=lambda o: to_int(o["price"]))["flights"][0]).get("departure_airport") or {}).get("id") or "",
+        } if directs else {}),
     }, hist
 
 
 # ---------------- faster-flights ----------------
-def ff_extract(f):
+def ff_option(f, origin):
     price = to_int(getattr(f, "price", None))
-    airline = getattr(f, "airlines", None) or getattr(f, "name", None) or getattr(f, "airline", None) or ""
-    if isinstance(airline, (list, tuple)):
-        airline = "、".join(str(a) for a in airline)
-    stops = getattr(f, "stops", None)
-    return price, str(airline), stops
+    airlines = getattr(f, "airlines", None) or []
+    if isinstance(airlines, str):
+        airlines = [airlines]
+    legs = getattr(f, "flights", None) or []
+    dep = ""
+    if legs:
+        t = getattr(getattr(legs[0], "departure", None), "time", None) or []
+        if t:
+            dep = f"{int(t[0]):02d}:{int(t[1]) if len(t) > 1 else 0:02d}"
+    via = [getattr(getattr(l, "to_airport", None), "code", "") for l in legs[:-1]]
+    return {
+        "price": price,
+        "airline": "、".join(dict.fromkeys(str(a) for a in airlines)),
+        "airport": origin,
+        "stops": max(0, len(legs) - 1) if legs else None,
+        "via": "、".join(v for v in via if v),
+        "depart_time": dep,
+    }
 
 
 def via_fastflights(trip):
-    import fast_flights as ff  # noqa: F401
+    import fast_flights as ff
 
-    log("fast_flights 版本:", getattr(ff, "__version__", "?"), "可用:", [n for n in dir(ff) if not n.startswith("_")])
-    best = None
+    options = []
     for origin in ORIGINS:
         try:
-            if hasattr(ff, "create_query"):
-                q = ff.create_query(
-                    flights=[
-                        ff.FlightQuery(date=trip["out"], from_airport=origin, to_airport=DEST),
-                        ff.FlightQuery(date=trip["ret"], from_airport=DEST, to_airport=origin),
-                    ],
-                    trip="round-trip",
-                    seat="economy",
-                    passengers=ff.Passengers(adults=1),
-                    language="zh-CN",
-                    currency="CNY",
-                )
-                res = ff.get_flights(q)
-                flights = list(res)
-                log(origin, "结果条数:", len(flights), "首条:", repr(flights[0])[:400] if flights else "无")
-                total = None
-                if flights and hasattr(ff, "select_flight") and hasattr(ff, "get_return_flights"):
-                    try:
-                        cheapest = min(flights, key=lambda f: ff_extract(f)[0] or 10**9)
-                        rq = ff.select_flight(q, cheapest)
-                        rets = list(ff.get_return_flights(rq))
-                        log(origin, "回程条数:", len(rets), "首条:", repr(rets[0])[:300] if rets else "无")
-                        prices = [ff_extract(r)[0] for r in rets if ff_extract(r)[0]]
-                        if prices:
-                            total = min(prices)
-                    except Exception as e:  # noqa: BLE001
-                        log(origin, "选回程失败:", repr(e)[:300])
-                for f in flights:
-                    price, airline, stops = ff_extract(f)
-                    if not price:
-                        continue
-                    cand = {"price": price, "airline": airline, "airport": origin, "stops": stops if isinstance(stops, int) else None}
-                    if best is None or price < best["price"]:
-                        best = cand
-                if total and best and best["airport"] == origin:
-                    log(origin, "往返总价（选定去程后）:", total, "去程列表最低:", best["price"])
-                    best["price_selected_total"] = total
-            else:
-                res = ff.get_flights(
-                    flight_data=[
-                        ff.FlightData(date=trip["out"], from_airport=origin, to_airport=DEST),
-                        ff.FlightData(date=trip["ret"], from_airport=DEST, to_airport=origin),
-                    ],
-                    trip="round-trip",
-                    seat="economy",
-                    passengers=ff.Passengers(adults=1),
-                    fetch_mode="fallback",
-                )
-                log(origin, "旧版结果:", repr(res)[:600])
-                for f in getattr(res, "flights", []) or []:
-                    raw = str(getattr(f, "price", ""))
-                    if "$" in raw or "US" in raw:
-                        continue
-                    price, airline, stops = ff_extract(f)
-                    if price and (best is None or price < best["price"]):
-                        best = {"price": price, "airline": airline, "airport": origin, "stops": stops if isinstance(stops, int) else None,
-                                "price_level": getattr(res, "current_price", "") or ""}
+            q = ff.create_query(
+                flights=[
+                    ff.FlightQuery(date=trip["out"], from_airport=origin, to_airport=DEST),
+                    ff.FlightQuery(date=trip["ret"], from_airport=DEST, to_airport=origin),
+                ],
+                trip="round-trip",
+                seat="economy",
+                passengers=ff.Passengers(adults=1),
+                language="zh-CN",
+                currency="CNY",
+            )
+            got = [ff_option(f, origin) for f in ff.get_flights(q)]
+            got = [o for o in got if o["price"]]
+            for o in sorted(got, key=lambda o: o["price"]):
+                log(f"  {origin} ¥{o['price']} {o['airline']} {'直飞' if o['stops'] == 0 else '经' + (o['via'] or '?')} {o['depart_time']}起飞")
+            options += got
         except Exception as e:  # noqa: BLE001
             log(origin, "faster-flights 出错:", repr(e)[:400])
-            log(traceback.format_exc()[-800:])
-    if not best:
-        raise RuntimeError("faster-flights 没拿到人民币价格")
-    best.setdefault("price_level", "")
-    best["source"] = "Google Flights"
-    return best, []
+            log(traceback.format_exc()[-600:])
+    if not options:
+        raise RuntimeError("faster-flights 没拿到价格")
+    best = min(options, key=lambda o: o["price"])
+    directs = [o for o in options if o["stops"] == 0]
+    out = dict(best)
+    if directs:
+        d = min(directs, key=lambda o: o["price"])
+        out.update({"direct_price": d["price"], "direct_airline": d["airline"], "direct_airport": d["airport"], "direct_depart_time": d["depart_time"]})
+    out["price_level"] = ""
+    out["source"] = "Google Flights"
+    return out, []
 
 
 def main():
@@ -198,8 +181,6 @@ def main():
                 log("没拿到价格:", repr(e)[:300])
         if result is None:
             continue
-        if result.get("price_selected_total"):
-            result["price"] = result.pop("price_selected_total")
         row = {
             "id": now.strftime("%Y-%m-%dT%H:%M") + "_" + tid,
             "checked": now.strftime("%Y-%m-%d"),
