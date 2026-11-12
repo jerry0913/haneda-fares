@@ -1,20 +1,20 @@
-2026-11-12T03:48+09:00
+2026-11-12T13:02+09:00
 == 2/11 去 · 2/15 回 ==
-  PEK（只搜直飞） 共 0 条，直飞 0 条：
+  PEK 出错: JSONDecodeError('Extra data: line 1 column 235 (char 234)')
   PKX（只搜直飞） 共 1 条，直飞 1 条：南航 PKX 09:45 ¥6106
   BJS（只搜直飞） 共 1 条，直飞 1 条：国航 PEK 11:45 ¥13178
-  PEK（不筛选） 共 8 条，直飞 1 条：国航 PEK 11:45 ¥13178
-  PKX 出错: JSONDecodeError('Extra data: line 1 column 234 (char 233)')
-    南航 PKX 09:45 去 → 直飞回程：南航 15:40 往返¥6106；东航 16:40 往返¥18539
-    国航 PEK 11:45 去 → 直飞回程：日航 08:50 往返¥7952；全日空 08:55 往返¥8172；东航 16:40 往返¥14002；国航 18:00 往返¥14232
-记录: {"id": "2026-11-12T03:48_d11", "checked": "2026-11-12", "checked_at": "2026-11-12T03:48+09:00", "trip": "d11", "trip_label": "2/11 去 · 2/15 回", "src": "google", "price": 6106, "airline": "南航", "airport": "PKX", "depart_time": "09:45", "ret_airline": "南航", "ret_time": "15:40", "stops": 0, "nonstop": true, "price_level": "", "source": "Google Flights"}
+  PEK 出错: JSONDecodeError('Extra data: line 1 column 235 (char 234)')
+  PKX 出错: JSONDecodeError('Extra data: line 1 column 235 (char 234)')
+    南航 PKX 09:45 去 → 直飞回程：南航 15:40 往返¥6106；东航 16:40 往返¥18546
+    国航 PEK 11:45 去 → 直飞回程：日航 08:50 往返¥7956；全日空 08:55 往返¥8176；东航 16:40 往返¥14010；国航 18:00 往返¥14240
+记录: {"id": "2026-11-12T13:02_d11", "checked": "2026-11-12", "checked_at": "2026-11-12T13:02+09:00", "trip": "d11", "trip_label": "2/11 去 · 2/15 回", "src": "google", "price": 6106, "airline": "南航", "airport": "PKX", "depart_time": "09:45", "ret_airline": "南航", "ret_time": "15:40", "stops": 0, "nonstop": true, "price_level": "", "source": "Google Flights"}
 == 2/10 去 · 2/15 回 ==
   PEK（只搜直飞） 共 0 条，直飞 0 条：
-  PKX（只搜直飞） 共 2 条，直飞 2 条：南航 PKX 09:45 ¥6256；东航 PKX 11:10 ¥15624
-  BJS（只搜直飞） 共 2 条，直飞 2 条：国航 PEK 11:45 ¥13178；东航 PKX 11:10 ¥15624
+  PKX（只搜直飞） 共 2 条，直飞 2 条：南航 PKX 09:45 ¥6256；东航 PKX 11:10 ¥15626
+  BJS 出错: JSONDecodeError('Extra data: line 1 column 235 (char 234)')
   PEK（不筛选） 共 6 条，直飞 1 条：国航 PEK 11:45 ¥13178
-  PKX（不筛选） 共 6 条，直飞 0 条：
-    南航 PKX 09:45 去 → 直飞回程：南航 15:40 往返¥6256；东航 16:40 往返¥18739
-    国航 PEK 11:45 去 → 直飞回程：日航 08:50 往返¥7952；全日空 08:55 往返¥8172；东航 16:40 往返¥14002；国航 18:00 往返¥14232
-    东航 PKX 11:10 去 → 直飞回程：南航 15:40 往返¥15624；东航 16:40 往返¥19586
-记录: {"id": "2026-11-12T03:48_d10", "checked": "2026-11-12", "checked_at": "2026-11-12T03:48+09:00", "trip": "d10", "trip_label": "2/10 去 · 2/15 回", "src": "google", "price": 6256, "airline": "南航", "airport": "PKX", "depart_time": "09:45", "ret_airline": "南航", "ret_time": "15:40", "stops": 0, "nonstop": true, "price_level": "", "source": "Google Flights"}
+  PKX（不筛选） 共 6 条，直飞 1 条：东航 PKX 11:10 ¥15626
+    南航 PKX 09:45 去 → 直飞回程：南航 15:40 往返¥6256；东航 16:40 往返¥18746
+    国航 PEK 11:45 去 → 直飞回程：日航 17:00 往返¥7747；全日空 17:25 往返¥7968；国航 18:00 往返¥14240
+    东航 PKX 11:10 去 → 直飞回程：南航 15:40 往返¥15626；东航 16:40 往返¥19586
+记录: {"id": "2026-11-12T13:02_d10", "checked": "2026-11-12", "checked_at": "2026-11-12T13:02+09:00", "trip": "d10", "trip_label": "2/10 去 · 2/15 回", "src": "google", "price": 6256, "airline": "南航", "airport": "PKX", "depart_time": "09:45", "ret_airline": "南航", "ret_time": "15:40", "stops": 0, "nonstop": true, "price_level": "", "source": "Google Flights"}
