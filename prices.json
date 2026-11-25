@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25T06:25+09:00",
+ "updated": "2026-11-25T14:36+09:00",
  "rows": [
   {
    "id": "2026-11-02T00:56_d11",
@@ -1494,6 +1494,24 @@
    "id": "2026-11-25T06:25_d10",
    "checked": "2026-11-25",
    "checked_at": "2026-11-25T06:25+09:00",
+   "trip": "d10",
+   "trip_label": "2/10 去 · 2/15 回",
+   "src": "google",
+   "price": 6254,
+   "airline": "南航",
+   "airport": "PKX",
+   "depart_time": "09:45",
+   "ret_airline": "南航",
+   "ret_time": "15:40",
+   "stops": 0,
+   "nonstop": true,
+   "price_level": "",
+   "source": "Google Flights"
+  },
+  {
+   "id": "2026-11-25T14:36_d10",
+   "checked": "2026-11-25",
+   "checked_at": "2026-11-25T14:36+09:00",
    "trip": "d10",
    "trip_label": "2/10 去 · 2/15 回",
    "src": "google",
