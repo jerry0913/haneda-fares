@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-26T05:33+09:00",
+ "updated": "2026-11-26T14:19+09:00",
  "rows": [
   {
    "id": "2026-11-02T00:56_d11",
@@ -1548,6 +1548,24 @@
    "id": "2026-11-26T05:33_d10",
    "checked": "2026-11-26",
    "checked_at": "2026-11-26T05:33+09:00",
+   "trip": "d10",
+   "trip_label": "2/10 去 · 2/15 回",
+   "src": "google",
+   "price": 5826,
+   "airline": "全日空",
+   "airport": "PEK",
+   "depart_time": "15:15",
+   "ret_airline": "全日空",
+   "ret_time": "08:55",
+   "stops": 0,
+   "nonstop": true,
+   "price_level": "",
+   "source": "Google Flights"
+  },
+  {
+   "id": "2026-11-26T14:19_d10",
+   "checked": "2026-11-26",
+   "checked_at": "2026-11-26T14:19+09:00",
    "trip": "d10",
    "trip_label": "2/10 去 · 2/15 回",
    "src": "google",
